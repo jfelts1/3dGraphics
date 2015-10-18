@@ -1,7 +1,7 @@
+#ifdef _MSC_VER
 #if _MSC_VER < 1900
 #pragma message("Untested on this compiler, may not work")
 #endif
-#ifdef _MSC_VER
 #pragma warning(disable: 4505 4514 4668 4820 4710 4711)
 #endif
 #include <GL/glew.h>
