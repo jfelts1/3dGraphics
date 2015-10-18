@@ -300,7 +300,9 @@ void Display(void)
 /*********/
 int main(int argc, char** argv)
 {
-
+	glewExperimental = GL_TRUE;
+	glutInitContextVersion (3, 3);
+	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
 	glutInitWindowSize(512, 512);
