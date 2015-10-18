@@ -1,12 +1,12 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 #define GLM_FORCE_RADIANS 
-
+#define GLM_FORCE_CXX11
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
@@ -129,7 +129,8 @@ static const GLchar* ReadFile(const char* filename)
 	return const_cast<const GLchar*> (source);
 }
 
-GLuint initShaders(const char *v_shader, const char *f_shader) {
+GLuint initShaders(const char *v_shader, const char *f_shader) 
+{
 	auto p = glCreateProgram();
 	auto v = glCreateShader(GL_VERTEX_SHADER);
 	auto f = glCreateShader(GL_FRAGMENT_SHADER);
@@ -190,7 +191,8 @@ GLuint initShaders(const char *v_shader, const char *f_shader) {
 
 }
 
-void Initialize(void){
+void Initialize(void)
+{
 	// Create the program for rendering the model
 
 	program = initShaders("cube_shader.vs", "cube_shader.fs");
@@ -296,7 +298,8 @@ void Display(void)
 }
 
 /*********/
-int main(int argc, char** argv){
+int main(int argc, char** argv)
+{
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
