@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <array>
+#include <vector>
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
 #include <glm/mat4x4.hpp> // glm::mat4
@@ -21,8 +22,8 @@ class Cube
 public:
 	Cube();
 
-	explicit Cube(std::array<GLfloat, NUM_VERTEX> vertexes, std::array<GLfloat, NUM_NORMALS> normals, std::array<GLushort, NUM_INDICES> indices,
-		std::array<GLfloat, COLOR_ARRAY_SIZE> color, std::array<GLfloat, POSITION_ARRAY_SIZE> position)
+	explicit Cube(const std::array<GLfloat, NUM_VERTEX>& vertexes, const std::vector<GLfloat>& normals, const std::vector<GLushort>& indices,
+		const std::array<GLfloat, COLOR_ARRAY_SIZE>& color, const std::array<GLfloat, POSITION_ARRAY_SIZE>& position)
 		noexcept: m_vertexes(vertexes), m_normals(normals), m_indices(indices), m_color(color), m_position(position)
 	{
 		// ReSharper disable once CppUseAuto
@@ -80,8 +81,8 @@ public:
 	}
 private:
 	std::array<GLfloat, NUM_VERTEX> m_vertexes;
-	std::array<GLfloat, NUM_NORMALS> m_normals;
-	std::array<GLushort, NUM_INDICES> m_indices;
+	std::vector<GLfloat> m_normals;
+	std::vector<GLushort> m_indices;
 	std::array<GLfloat, COLOR_ARRAY_SIZE> m_color;
 	std::array<GLfloat, POSITION_ARRAY_SIZE> m_position;
 

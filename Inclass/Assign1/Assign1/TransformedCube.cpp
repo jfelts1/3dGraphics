@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <array>
+#include <vector>
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
@@ -21,106 +22,98 @@
 #include "Utils/ShaderUtils.h"
 #include "Cube.h"
 
+#define NUM_CUBES 5
 
-static const double kPI = 3.1415926535897932384626433832795;
+constexpr double kPI = 3.1415926535897932384626433832795;
 using namespace glm;
 std::array<Cube, 5> cubes;
 
-static const GLfloat cube_vertices[] = { 1.0f, 1.0f, 1.0f, 1.0f,  // v0,v1,v2,v3 (front)
--1.0f, 1.0f, 1.0f, 1.0f,
--1.0f, -1.0f, 1.0f, 1.0f,
-1.0f, -1.0f, 1.0f, 1.0f,
-1.0f, 1.0f, 1.0f, 1.0f,  // v0,v3,v4,v5 (right)
-1.0f, -1.0f, 1.0f, 1.0f,
-1.0f, -1.0f, -1.0f, 1.0f,
-1.0f, 1.0f, -1.0f, 1.0f,
-1.0f, 1.0f, 1.0f, 1.0f,  // v0,v5,v6,v1 (top)
-1.0f, 1.0f, -1.0, 1.0f,
--1.0f, 1.0f, -1.0f, 1.0f,
--1.0f, 1.0f, 1.0f, 1.0f,
--1.0f, 1.0f, 1.0f, 1.0f, // v1,v6,v7,v2 (left)
--1.0f, 1.0f, -1.0f, 1.0f,
--1.0f, -1.0f, -1.0f, 1.0f,
--1.0f, -1.0f, 1.0f, 1.0f,
--1.0f, -1.0f, -1.0f, 1.0f,// v7,v4,v3,v2 (bottom)
-1.0f, -1.0f, -1.0f, 1.0f,
-1.0f, -1.0f, 1.0f, 1.0f,
--1.0f, -1.0f, 1.0f, 1.0f,
-1.0f, -1.0f, -1.0f, 1.0f,// v4,v7,v6,v5 (back)
--1.0f, -1.0f, -1.0f, 1.0f,
--1.0f, 1.0f, -1.0f, 1.0f,
-1.0f, 1.0f, -1.0f, 1.0f };
+static const std::array<std::array<GLfloat, NUM_VERTEX>, NUM_CUBES> verts = {
+	std::array<GLfloat,NUM_VERTEX>{
+	1.0f, 1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f, 1.0f,
+	-1.0f, -1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f, 1.0f},
+	std::array<GLfloat,NUM_VERTEX>{
+	1.0f, 1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, -1.0f, 1.0f,
+	1.0f, 1.0f, -1.0f, 1.0f},
+	std::array<GLfloat,NUM_VERTEX>{
+	1.0f, 1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, -1.0, 1.0f,
+	-1.0f, 1.0f, -1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f, 1.0f},
+	std::array<GLfloat,NUM_VERTEX>{
+	-1.0f, -1.0f, -1.0f, 1.0f,
+	1.0f, -1.0f, -1.0f, 1.0f,
+	1.0f, -1.0f, 1.0f, 1.0f,
+	-1.0f, -1.0f, 1.0f, 1.0f},
+	std::array<GLfloat,NUM_VERTEX>{
+	1.0f, -1.0f, -1.0f, 1.0f,
+	-1.0f, -1.0f, -1.0f, 1.0f,
+	-1.0f, 1.0f, -1.0f, 1.0f,
+	1.0f, 1.0f, -1.0f, 1.0f}
+};
 
-static const GLfloat cube_normals[] = { 0.0f, 0.0f, 1.0f, // v0,v1,v2,v3 (front)
-0.0f, 0.0f, 1.0f,
-0.0f, 0.0f, 1.0f,
-0.0f, 0.0f, 1.0f,
-1.0f, 0.0f, 0.0f, // v0,v3,v4,v5 (right)
-1.0f, 0.0f, 0.0f,
-1.0f, 0.0f, 0.0f,
-1.0f, 0.0f, 0.0f,
-0.0f, 1.0f, 0.0f, // v0,v5,v6,v1 (top)
-0.0f, 1.0f, 0.0f,
-0.0f, 1.0f, 0.0f,
-0.0f, 1.0f, 0.0f,
--1.0f, 0.0f, 0.0f,// v1,v6,v7,v2 (left)
--1.0f, 0.0f, 0.0f,
--1.0f, 0.0f, 0.0f,
--1.0f, 0.0f, 0.0f,
-0.0f, -1.0f, 0.0f, // v7,v4,v3,v2 (bottom)
-0.0f, -1.0f, 0.0f,
-0.0f, -1.0f, 0.0f,
-0.0f, -1.0f, 0.0f,
-0.0f, 0.0f, -1.0f, // v4,v7,v6,v5 (back)
-0.0f, 0.0f, -1.0f,
-0.0f, 0.0f, -1.0f,
-0.0f, 0.0f, -1.0f };
+static const std::vector<GLfloat> norms = {
+	0.0f, 0.0f, 1.0f, // v0,v1,v2,v3 (front)
+	0.0f, 0.0f, 1.0f,
+	0.0f, 0.0f, 1.0f,
+	0.0f, 0.0f, 1.0f,
+	1.0f, 0.0f, 0.0f, // v0,v3,v4,v5 (right)
+	1.0f, 0.0f, 0.0f,
+	1.0f, 0.0f, 0.0f,
+	1.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, // v0,v5,v6,v1 (top)
+	0.0f, 1.0f, 0.0f,
+	0.0f, 1.0f, 0.0f,
+	0.0f, 1.0f, 0.0f,
+	-1.0f, 0.0f, 0.0f,// v1,v6,v7,v2 (left)
+	-1.0f, 0.0f, 0.0f,
+	-1.0f, 0.0f, 0.0f,
+	-1.0f, 0.0f, 0.0f,
+	0.0f, -1.0f, 0.0f, // v7,v4,v3,v2 (bottom)
+	0.0f, -1.0f, 0.0f,
+	0.0f, -1.0f, 0.0f,
+	0.0f, -1.0f, 0.0f,
+	0.0f, 0.0f, -1.0f, // v4,v7,v6,v5 (back)
+	0.0f, 0.0f, -1.0f,
+	0.0f, 0.0f, -1.0f,
+	0.0f, 0.0f, -1.0f
+};
 
-
-static const GLushort cube_indices[] = { 0, 1, 2, 2, 3, 0,            // front
+static const std::vector<GLushort> indices = { 0, 1, 2, 2, 3, 0,            // front
 4, 5, 6, 6, 7, 4,            // right
 8, 9, 10, 10, 11, 8,         // top
 12, 13, 14, 14, 15, 12,      // left
 16, 17, 18, 18, 19, 16,      // bottom
 20, 21, 22, 22, 23, 20 };    // back
 
-static const GLfloat colors[] = { 1.0f, 1.0f, 1.0f, 1.0f,
-1.0f, 0.0f, 0.0f, 1.0f,
-0.0f, 1.0f, 0.0f, 1.0f,
-0.0f, 0.0f, 1.0f, 1.0f,
-1.0f, 1.0f, 0.0f, 1.0f };
+static const std::array<std::array<GLfloat, COLOR_ARRAY_SIZE>, NUM_CUBES> colors = {
+	std::array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 1.0f, 1.0f, 1.0f},
+	std::array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 0.0f, 0.0f, 1.0f},
+	std::array<GLfloat,COLOR_ARRAY_SIZE>{0.0f, 1.0f, 0.0f, 1.0f},
+	std::array<GLfloat,COLOR_ARRAY_SIZE>{0.0f, 0.0f, 1.0f, 1.0f},
+	std::array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 1.0f, 0.0f, 1.0f}
+};
 
-static const GLfloat positions[] = { 0.0f, 0.0f, 0.0f, 1.0f,
--3.0f, -3.0f, 0.0f, 1.0f,
-3.0f, -3.0f, 0.0f, 1.0f,
-3.0f, 3.0f, 0.0f, 1.0f,
--3.0f, 3.0f, 0.0f, 1.0f };
-
-void init();
-void display(void);
-
-
+static const std::array<std::array<GLfloat, POSITION_ARRAY_SIZE>, NUM_CUBES> pos = {
+	std::array<GLfloat,POSITION_ARRAY_SIZE>{0.0f, 0.0f, 0.0f, 1.0f},
+	std::array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, -3.0f, 0.0f, 1.0f},
+	std::array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, -3.0f, 0.0f, 1.0f},
+	std::array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, 3.0f, 0.0f, 1.0f},
+	std::array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, 3.0f, 0.0f, 1.0f},
+};
 
 void Initialize(void)
 {
 	Cube::initCubeShaders();
-	std::array<GLfloat, NUM_VERTEX> vert = { 1.0f, 1.0f, 1.0f, 1.0f,  // v0,v1,v2,v3 (front)
-		-1.0f, 1.0f, 1.0f, 1.0f,
-		-1.0f, -1.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 1.0f, 1.0f };
-	std::array<GLfloat, NUM_NORMALS> norm = { 0.0f, 0.0f, 1.0f, // v0,v1,v2,v3 (front)
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f };
-	std::array<GLushort, NUM_INDICES> indices = { 0, 1, 2, 2, 3, 0 };
-	std::array<GLfloat, COLOR_ARRAY_SIZE> color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	std::array<GLfloat, POSITION_ARRAY_SIZE> pos = { 0.0f, 0.0f, 0.0f, 1.0f };
-	cubes[0] = Cube(vert, norm, indices, color, pos);
+	cubes[0] = Cube(verts[0], norms, indices, colors[0], pos[0]);
 
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
-
 
 void Display(void)
 {
