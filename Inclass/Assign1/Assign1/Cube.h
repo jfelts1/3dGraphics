@@ -22,9 +22,8 @@ class Cube
 public:
 	Cube();
 
-	explicit Cube(const std::vector<GLfloat>& vertexes, const std::vector<GLfloat>& normals, const std::vector<GLushort>& indices,
-		const std::array<GLfloat, COLOR_ARRAY_SIZE>& color, const std::array<GLfloat, POSITION_ARRAY_SIZE>& position)
-		noexcept: m_vertexes(vertexes), m_normals(normals), m_indices(indices), m_color(color), m_position(position)
+	explicit Cube(const std::array<GLfloat, COLOR_ARRAY_SIZE>& color, const std::array<GLfloat, POSITION_ARRAY_SIZE>& position)
+		noexcept: m_color(color), m_position(position)
 	{
 		// ReSharper disable once CppUseAuto
 		GLintptr offset = 0;
@@ -80,9 +79,9 @@ public:
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 	}
 private:
-	std::vector<GLfloat> m_vertexes;
-	std::vector<GLfloat> m_normals;
-	std::vector<GLushort> m_indices;
+	static const std::vector<GLfloat> m_vertexes;
+	static const std::vector<GLfloat> m_normals;
+	static const std::vector<GLushort> m_indices;
 	std::array<GLfloat, COLOR_ARRAY_SIZE> m_color;
 	std::array<GLfloat, POSITION_ARRAY_SIZE> m_position;
 
@@ -95,5 +94,6 @@ private:
 	static GLuint cube_vao;
 	static GLuint cube_vbo;
 	static GLuint cube_ebo;
+	
 };
 #endif
