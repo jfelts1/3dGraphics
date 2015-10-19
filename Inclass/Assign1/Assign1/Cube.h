@@ -22,7 +22,7 @@ class Cube
 public:
 	Cube();
 
-	explicit Cube(const std::array<GLfloat, NUM_VERTEX>& vertexes, const std::vector<GLfloat>& normals, const std::vector<GLushort>& indices,
+	explicit Cube(const std::vector<GLfloat>& vertexes, const std::vector<GLfloat>& normals, const std::vector<GLushort>& indices,
 		const std::array<GLfloat, COLOR_ARRAY_SIZE>& color, const std::array<GLfloat, POSITION_ARRAY_SIZE>& position)
 		noexcept: m_vertexes(vertexes), m_normals(normals), m_indices(indices), m_color(color), m_position(position)
 	{
@@ -80,7 +80,7 @@ public:
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 	}
 private:
-	std::array<GLfloat, NUM_VERTEX> m_vertexes;
+	std::vector<GLfloat> m_vertexes;
 	std::vector<GLfloat> m_normals;
 	std::vector<GLushort> m_indices;
 	std::array<GLfloat, COLOR_ARRAY_SIZE> m_color;
