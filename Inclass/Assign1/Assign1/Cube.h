@@ -46,7 +46,9 @@ public:
 		glVertexAttribPointer(static_cast<GLuint>(m_cubeLoc), 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeLoc));
 
-		glVertexAttribPointer(static_cast<GLuint>(m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
+		glVertexAttribPointer(
+		static_cast<GLuint>(m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
+		
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeNormalLoc));
 	};
 	virtual ~Cube();
