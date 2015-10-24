@@ -7,32 +7,43 @@
 #include <GL/freeglut.h>
 #include <array>
 #include <vector>
+#include <cassert>
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include "Utils/ShaderUtils.h"
-#define NUM_VERTEX 16
-#define NUM_NORMALS 12
-#define NUM_INDICES 6
+#define NUM_FACES 6
+#define NUM_VERTEX 16*NUM_FACES
+#define NUM_NORMALS 12*NUM_FACES
+#define NUM_INDICES 6*NUM_FACES
 #define COLOR_ARRAY_SIZE 4
 #define POSITION_ARRAY_SIZE 4
+
 class Cube
 {
 public:
 	Cube();
 
-	explicit Cube(const std::array<GLfloat, COLOR_ARRAY_SIZE>& color, const std::array<GLfloat, POSITION_ARRAY_SIZE>& position)
+	explicit Cube(
+		const std::array<GLfloat, COLOR_ARRAY_SIZE>& color, 
+		const std::array<GLfloat, POSITION_ARRAY_SIZE>& position)
 		noexcept: m_color(color), m_position(position)
 	{
-		// ReSharper disable once CppUseAuto
+		//asserts to make sure the vectors are of the correct sizes
+		assert(m_vertexes.size() == NUM_VERTEX);
+		assert(m_normals.size() == NUM_NORMALS);
+		assert(m_indices.size() == NUM_INDICES);
+
 		GLintptr offset = 0;
 		glGenVertexArrays(1, &cube_vao);
 		glBindVertexArray(cube_vao);
 		glGenBuffers(1, &cube_vbo);
 
 		glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
-		glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_vertexes.size() + m_normals.size()), nullptr, GL_STATIC_DRAW);
+		glBufferData(
+			GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_vertexes.size() + m_normals.size()), nullptr, GL_STATIC_DRAW);
+
 		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(m_vertexes.size()), m_vertexes.data());
 		offset += static_cast<GLintptr>(m_vertexes.size());
 		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(m_normals.size()), m_normals.data());
@@ -41,13 +52,15 @@ public:
 		glGenBuffers(1, &cube_ebo);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size()), m_indices.data(), GL_STATIC_DRAW);
+		glBufferData(
+			GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size()), m_indices.data(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(static_cast<GLuint>(m_cubeLoc), 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeLoc));
 
 		glVertexAttribPointer(
-		static_cast<GLuint>(m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
+			static_cast<GLuint>(
+			m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
 		
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeNormalLoc));
 	};
@@ -73,10 +86,11 @@ public:
 		glBindVertexArray(cube_vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
 
-		// Draw the center cube
+		glm::mat4 model_matrix = translate(glm::mat4(1.0f),glm::vec3(m_position[0],m_position[1],m_position[2]));
 
-		glm::mat4 model_matrix;
-		glUniformMatrix4fv(static_cast<GLint>(m_cubeMatrixLoc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_matrix[0]));
+		glUniformMatrix4fv(
+			static_cast<GLint>(m_cubeMatrixLoc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_matrix[0]));
+
 		glUniform4fv(static_cast<GLint>(m_cubeColorLoc), 1, const_cast<GLfloat*>(&m_color[0]));
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 	}

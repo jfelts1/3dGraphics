@@ -25,30 +25,32 @@
 #define NUM_CUBES 5
 
 constexpr double kPI = 3.1415926535897932384626433832795;
-using namespace glm;
-std::array<Cube, NUM_CUBES> cubes;
+using std::array;
+array<Cube, NUM_CUBES> cubes;
 
-static const std::array<std::array<GLfloat, COLOR_ARRAY_SIZE>, NUM_CUBES> colors = {
-	std::array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 1.0f, 1.0f, 1.0f},
-	std::array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 0.0f, 0.0f, 1.0f},
-	std::array<GLfloat,COLOR_ARRAY_SIZE>{0.0f, 1.0f, 0.0f, 1.0f},
-	std::array<GLfloat,COLOR_ARRAY_SIZE>{0.0f, 0.0f, 1.0f, 1.0f},
-	std::array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 1.0f, 0.0f, 1.0f}
+static const array<array<GLfloat, COLOR_ARRAY_SIZE>, NUM_CUBES> colors = {
+	array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 1.0f, 1.0f, 1.0f},
+	array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 0.0f, 0.0f, 1.0f},
+	array<GLfloat,COLOR_ARRAY_SIZE>{0.0f, 1.0f, 0.0f, 1.0f},
+	array<GLfloat,COLOR_ARRAY_SIZE>{0.0f, 0.0f, 1.0f, 1.0f},
+	array<GLfloat,COLOR_ARRAY_SIZE>{1.0f, 1.0f, 0.0f, 1.0f}
 };
 
-static const std::array<std::array<GLfloat, POSITION_ARRAY_SIZE>, NUM_CUBES> pos = {
-	std::array<GLfloat,POSITION_ARRAY_SIZE>{0.0f, 0.0f, 0.0f, 1.0f},
-	std::array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, -3.0f, 0.0f, 1.0f},
-	std::array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, -3.0f, 0.0f, 1.0f},
-	std::array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, 3.0f, 0.0f, 1.0f},
-	std::array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, 3.0f, 0.0f, 1.0f},
+static const array<array<GLfloat, POSITION_ARRAY_SIZE>, NUM_CUBES> pos = {
+	array<GLfloat,POSITION_ARRAY_SIZE>{0.0f, 0.0f, 0.0f, 1.0f},
+	array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, -3.0f, 0.0f, 1.0f},
+	array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, -3.0f, 0.0f, 1.0f},
+	array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, 3.0f, 0.0f, 1.0f},
+	array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, 3.0f, 0.0f, 1.0f},
 };
 
 void Initialize(void)
 {
 	Cube::initCubeShaders();
-	cubes[0] = Cube(colors[0], pos[0]);
-	//cubes[1] = Cube(verts, norms, indices, colors[1], pos[1]);
+	for (size_t i = 0;i < NUM_CUBES;i++)
+	{	
+		cubes[i] = Cube(colors[i], pos[i]);
+	}
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -63,9 +65,10 @@ void Display(void)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-	// Setup
-	cubes[0].display();
-	//cubes[1].display();
+	for(auto& cu:cubes)
+	{
+		cu.display();
+	}
 
 
 	// Draw cube translated
