@@ -65,6 +65,7 @@ void Display(void)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
+	cubes[2].setScale(glm::vec3(1.5f, 1.5f, 1.0f));
 	for(auto& cu:cubes)
 	{
 		cu.display();
