@@ -24,7 +24,7 @@
 
 #define NUM_CUBES 5
 
-constexpr double kPI = 3.1415926535897932384626433832795;
+constexpr float kPI = 3.1415926535897932384626433832795;
 using std::array;
 array<Cube, NUM_CUBES> cubes;
 
@@ -66,6 +66,7 @@ void Display(void)
 	glDepthFunc(GL_LEQUAL);
 
 	cubes[2].setScale(glm::vec3(1.5f, 1.5f, 1.0f));
+	cubes[3].setRotate(glm::vec3(1.0f,0.0f,0.0f),45.0f*(kPI)/180.0f);
 	for(auto& cu:cubes)
 	{
 		cu.display();

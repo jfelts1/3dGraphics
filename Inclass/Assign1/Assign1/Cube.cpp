@@ -46,43 +46,6 @@ const std::vector<GLfloat> Cube::m_vertexes = {
 		-1.0f, 1.0f, -1.0f, 1.0f,
 		1.0f, 1.0f, -1.0f, 1.0f
 	};
-
-const std::vector<vec4> Cube::test = {
-	/*vec4(1.0f, -1.0f, -1.0f, 1.0f),
-	vec4(1.0f, 1.0f, -1.0f, -1.0f),
-	vec4(1.0f, 1.0f, 1.0f, 1.0f),
-	vec4(1.0f, 1.0f, 1.0f, 1.0f),*/
-
-	vec4(1.0f, 1.0f, 1.0f, 1.0f),  // v0,v1,v2,v3 (front)
-	vec4(-1.0f, 1.0f, 1.0f, 1.0f),
-	vec4(-1.0f, -1.0f, 1.0f, 1.0f),
-	vec4(1.0f, -1.0f, 1.0f, 1.0f),
-
-	vec4(1.0f, 1.0f, 1.0f, 1.0f),  // v0,v3,v4,v5 (right)
-	vec4(1.0f, -1.0f, 1.0f, 1.0f),
-	vec4(1.0f, -1.0f, -1.0f, 1.0f),
-	vec4(1.0f, 1.0f, -1.0f, 1.0f),
-
-	vec4(1.0f, 1.0f, 1.0f, 1.0f),  // v0,v5,v6,v1 (top)
-	vec4(1.0f, 1.0f, -1.0, 1.0f),
-	vec4(-1.0f, 1.0f, -1.0f, 1.0f),
-	vec4(-1.0f, 1.0f, 1.0f, 1.0f),
-
-	vec4(-1.0f, 1.0f, 1.0f, 1.0f), // v1,v6,v7,v2 (left)
-	vec4(-1.0f, 1.0f, -1.0f, 1.0f),
-	vec4(-1.0f, -1.0f, -1.0f, 1.0f),
-	vec4(-1.0f, -1.0f, 1.0f, 1.0f),
-
-	vec4(-1.0f, -1.0f, -1.0f, 1.0f),// v7,v4,v3,v2 (bottom)
-	vec4(1.0f, -1.0f, -1.0f, 1.0f),
-	vec4(1.0f, -1.0f, 1.0f, 1.0f),
-	vec4(-1.0f, -1.0f, 1.0f, 1.0f),
-
-	vec4(1.0f, -1.0f, -1.0f, 1.0f),// v4,v7,v6,v5 (back)
-	vec4(-1.0f, -1.0f, -1.0f, 1.0f),
-	vec4(-1.0f, 1.0f, -1.0f, 1.0f),
-	vec4(1.0f, 1.0f, -1.0f, 1.0f)
-};
 	
 const std::vector<GLfloat> Cube::m_normals = {
 		0.0f, 0.0f, 1.0f, // v0,v1,v2,v3 (front)

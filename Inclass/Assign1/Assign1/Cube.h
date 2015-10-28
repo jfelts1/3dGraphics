@@ -64,10 +64,17 @@ public:
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeNormalLoc));
 
 		m_scale = glm::vec3(1, 1, 1);
+		m_axisOfRot = glm::vec3(1,1,1);
 	};
+	
 	virtual ~Cube();
 
 	void setScale(const glm::vec3 scale)noexcept { m_scale = scale; }
+	void setRotate(const glm::vec3 rotAxis, const float angle) noexcept
+	{
+		m_axisOfRot = rotAxis;
+		m_angle = angle;
+	}
 
 	static void initCubeShaders() noexcept
 	{
@@ -89,13 +96,12 @@ public:
 		glBindVertexArray(cube_vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
 
-		for (size_t i = 0;i < NUM_FACES;i++)
-		{
-			glm::mat4 model_matrix = scale(glm::mat4(test[i*4], test[(i*4)+1], test[(i*4)+2], test[(i*4)+3]), m_scale);
-			model_matrix += translate(glm::mat4(1.0f), glm::vec3(m_position[0], m_position[1], m_position[2]));
-			glUniformMatrix4fv(
+		glm::mat4 model_matrix = translate(glm::mat4(1.0f), glm::vec3(m_position[0], m_position[1], m_position[2]));
+		model_matrix = rotate(model_matrix,m_angle,m_axisOfRot);
+		model_matrix = scale(model_matrix, m_scale);
+			
+		glUniformMatrix4fv(
 				static_cast<GLint>(m_cubeMatrixLoc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_matrix[0]));
-		}
 
 		glUniform4fv(static_cast<GLint>(m_cubeColorLoc), 1, const_cast<GLfloat*>(&m_color[0]));
 		glDrawElements(GL_TRIANGLES, NUM_VERTEX, GL_UNSIGNED_SHORT, nullptr);
@@ -104,10 +110,11 @@ private:
 	static const std::vector<GLfloat> m_vertexes;
 	static const std::vector<GLfloat> m_normals;
 	static const std::vector<GLushort> m_indices;
-	static const std::vector<glm::vec4> test;
 	std::array<GLfloat, COLOR_ARRAY_SIZE> m_color;
 	std::array<GLfloat, POSITION_ARRAY_SIZE> m_position;
 	glm::vec3 m_scale;
+	glm::vec3 m_axisOfRot;
+	float m_angle;
 
 	static GLuint m_cubeProgram;
 	static GLuint m_cubeLoc;
