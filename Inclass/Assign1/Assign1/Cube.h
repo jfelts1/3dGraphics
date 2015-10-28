@@ -35,36 +35,9 @@ public:
 		assert(m_normals.size() == NUM_NORMALS);
 		assert(m_indices.size() == NUM_INDICES);
 
-		GLintptr offset = 0;
-		glGenVertexArrays(1, &cube_vao);
-		glBindVertexArray(cube_vao);
-		glGenBuffers(1, &cube_vbo);
-
-		glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
-		glBufferData(
-			GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(NUM_VERTEX + NUM_NORMALS), nullptr, GL_STATIC_DRAW);
-
-		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(NUM_VERTEX), m_vertexes.data());
-		offset += static_cast<GLintptr>(m_vertexes.size());
-		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(NUM_NORMALS), m_normals.data());
-
-		glGenBuffers(1, &cube_ebo);
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
-		glBufferData(
-			GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size()), m_indices.data(), GL_STATIC_DRAW);
-
-		glVertexAttribPointer(static_cast<GLuint>(m_cubeLoc), 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeLoc));
-
-		glVertexAttribPointer(
-			static_cast<GLuint>(
-			m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
-		
-		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeNormalLoc));
-
 		m_scale = glm::vec3(1, 1, 1);
 		m_axisOfRot = glm::vec3(1,1,1);
+		m_angle = 0;
 	};
 	
 	virtual ~Cube();
@@ -89,13 +62,43 @@ public:
 
 		m_cubeMatrixLoc = static_cast<GLuint>(glGetUniformLocation(m_cubeProgram, "model_matrix"));
 		m_cubeColorLoc = static_cast<GLuint>(glGetUniformLocation(m_cubeProgram, "color"));
+
+		GLintptr offset = 0;
+		glGenVertexArrays(1, &cube_vao);
+		glBindVertexArray(cube_vao);
+		glGenBuffers(1, &cube_vbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
+		glBufferData(
+			GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(NUM_VERTEX + NUM_NORMALS), nullptr, GL_STATIC_DRAW);
+
+		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(NUM_VERTEX), m_vertexes.data());
+		offset += static_cast<GLintptr>(m_vertexes.size());
+		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(NUM_NORMALS), m_normals.data());
+
+		glGenBuffers(1, &cube_ebo);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
+		glBufferData(
+			GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size()), m_indices.data(), GL_STATIC_DRAW);
+
+		glVertexAttribPointer(static_cast<GLuint>(m_cubeLoc), 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeLoc));
+
+		glVertexAttribPointer(
+			static_cast<GLuint>(m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
+
+		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeNormalLoc));
+	}
+
+	static void bind()noexcept
+	{
+		glBindVertexArray(cube_vao);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
 	}
 
 	void display() const noexcept
 	{
-		glBindVertexArray(cube_vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
-
 		glm::mat4 model_matrix = translate(glm::mat4(1.0f), glm::vec3(m_position[0], m_position[1], m_position[2]));
 		model_matrix = rotate(model_matrix,m_angle,m_axisOfRot);
 		model_matrix = scale(model_matrix, m_scale);
@@ -104,8 +107,9 @@ public:
 				static_cast<GLint>(m_cubeMatrixLoc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_matrix[0]));
 
 		glUniform4fv(static_cast<GLint>(m_cubeColorLoc), 1, const_cast<GLfloat*>(&m_color[0]));
-		glDrawElements(GL_TRIANGLES, NUM_VERTEX, GL_UNSIGNED_SHORT, nullptr);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
 	}
+
 private:
 	static const std::vector<GLfloat> m_vertexes;
 	static const std::vector<GLfloat> m_normals;

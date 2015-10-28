@@ -41,8 +41,8 @@ GLuint Utils::initShaders(const char *v_shader, const char *f_shader)
 	auto vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	auto vertexShaderText = Utils::readFileAsText(v_shader);
-	auto fragmentShaderText = Utils::readFileAsText(f_shader);
+	auto vertexShaderText = readFileAsText(v_shader);
+	auto fragmentShaderText = readFileAsText(f_shader);
 
 	auto tmp = const_cast<const GLchar*>(vertexShaderText.data());
 	glShaderSource(vertexShader, 1, &tmp, nullptr);
