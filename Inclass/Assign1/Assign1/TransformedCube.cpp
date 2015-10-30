@@ -67,11 +67,11 @@ void Display(void)
 
 	Cube::bind();
 
+	//green
 	cubes[2].setScale(glm::vec3(1.5f, 1.5f, 1.0f));
-	//cubes[3].setRotate(glm::vec3(1.0f,0.0f,0.0f),glm::radians(45.0f));
+	//blue
 	cubes[3].setRotateX(1,glm::radians(45.0f));
-	cubes[3].setRotateY(1,0);
-	cubes[3].setRotateZ(1,0);
+	//yellow
 	cubes[4].setRotateX(1,glm::radians(45.0f));
 	cubes[4].setRotateY(2,glm::radians(45.0f));
 	cubes[4].setRotateZ(3,glm::radians(45.0f));

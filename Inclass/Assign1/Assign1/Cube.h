@@ -130,17 +130,21 @@ public:
 	void display() const noexcept
 	{
 		glm::mat4 model_matrix = translate(glm::mat4(1.0f), glm::vec3(m_position[0], m_position[1], m_position[2]));
-		model_matrix = rotate(model_matrix,-m_xAngle,m_xAxis*m_xAxisMult);
-		printf("xRot\n");
-		printMat4(model_matrix);
-		model_matrix = rotate(model_matrix,m_yAngle,m_yAxis*m_yAxisMult);
-		printf("yRot\n");
-		printMat4(model_matrix);
-		model_matrix = rotate(model_matrix,m_zAngle,m_zAxis*m_zAxisMult);
-		printf("zRot\n");
-		model_matrix = rotate(model_matrix,-m_yAngle,m_yAxis*m_yAxisMult);
-		model_matrix = rotate(model_matrix,m_xAngle,m_xAxis*m_xAxisMult);
-		printMat4(model_matrix);
+		//ugly hack
+		if(m_yAngle == 0 && m_zAngle == 0)
+		{
+			//blue
+			model_matrix = rotate(model_matrix,m_xAngle,m_xAxis*m_xAxisMult);
+		}
+		else
+		{
+			model_matrix *= rotate(glm::mat4(1.0f),-m_xAngle, m_xAxis*m_xAxisMult)
+				*rotate(glm::mat4(1.0f), m_yAngle, m_yAxis*m_yAxisMult)
+				*rotate(glm::mat4(1.0f), m_zAngle, m_zAxis*m_zAxisMult)
+				*rotate(glm::mat4(1.0f), -m_yAngle, m_yAxis*m_yAxisMult)
+				*rotate(glm::mat4(1.0f), m_xAngle, m_xAxis*m_xAxisMult);
+
+		}
 		model_matrix = scale(model_matrix, m_scale);
 		
 		glUniformMatrix4fv(
