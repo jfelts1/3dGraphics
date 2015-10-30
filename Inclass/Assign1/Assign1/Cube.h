@@ -138,11 +138,11 @@ public:
 		}
 		else
 		{
-			model_matrix *= rotate(glm::mat4(1.0f),-m_xAngle, m_xAxis*m_xAxisMult)
-				*rotate(glm::mat4(1.0f), m_yAngle, m_yAxis*m_yAxisMult)
+			model_matrix *= rotate(glm::mat4(1.0f),-acosf(3.0f/sqrtf(13)), m_xAxis*m_xAxisMult)
+				*rotate(glm::mat4(1.0f), acosf(sqrtf(13.0f/14.0f)), m_yAxis*m_yAxisMult)
 				*rotate(glm::mat4(1.0f), m_zAngle, m_zAxis*m_zAxisMult)
-				*rotate(glm::mat4(1.0f), -m_yAngle, m_yAxis*m_yAxisMult)
-				*rotate(glm::mat4(1.0f), m_xAngle, m_xAxis*m_xAxisMult);
+				*rotate(glm::mat4(1.0f), -acosf(sqrtf(13.0f / 14.0f)), m_yAxis*m_yAxisMult)
+				*rotate(glm::mat4(1.0f), acosf(3.0f / sqrtf(13)), m_xAxis*m_xAxisMult);
 
 		}
 		model_matrix = scale(model_matrix, m_scale);
