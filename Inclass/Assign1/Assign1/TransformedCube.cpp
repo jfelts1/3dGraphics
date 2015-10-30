@@ -41,7 +41,7 @@ static const array<array<GLfloat, POSITION_ARRAY_SIZE>, NUM_CUBES> pos = {
 	array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, -3.0f, 0.0f, 1.0f},
 	array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, -3.0f, 0.0f, 1.0f},
 	array<GLfloat,POSITION_ARRAY_SIZE>{3.0f, 3.0f, 0.0f, 1.0f},
-	array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, 3.0f, 0.0f, 1.0f},
+	array<GLfloat,POSITION_ARRAY_SIZE>{-3.0f, 3.0f, 0.0f, 1.0f}
 };
 
 void Initialize(void)
@@ -68,7 +68,13 @@ void Display(void)
 	Cube::bind();
 
 	cubes[2].setScale(glm::vec3(1.5f, 1.5f, 1.0f));
-	cubes[3].setRotate(glm::vec3(1.0f,0.0f,0.0f),45.0f*(kPI)/180.0f);
+	//cubes[3].setRotate(glm::vec3(1.0f,0.0f,0.0f),glm::radians(45.0f));
+	cubes[3].setRotateX(1,glm::radians(45.0f));
+	cubes[3].setRotateY(1,0);
+	cubes[3].setRotateZ(1,0);
+	cubes[4].setRotateX(1,glm::radians(45.0f));
+	cubes[4].setRotateY(2,glm::radians(45.0f));
+	cubes[4].setRotateZ(3,glm::radians(45.0f));
 	for(auto& cu:cubes)
 	{
 		cu.display();

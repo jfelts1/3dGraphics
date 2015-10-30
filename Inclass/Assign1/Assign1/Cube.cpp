@@ -1,6 +1,20 @@
 #include "Cube.h"
 
+void printMat4(const glm::mat4 m)
+{
+	for(int x = 0;x<4;x++)
+	{
+		for(int y = 0;y<4;y++)
+		{
+			std::cout << m[x][y];
+			std::cout <<" ";
+		}
+		std::cout<<std::endl;
+	}
+}
+
 using glm::vec4;
+using glm::vec3;
 
 Cube::Cube()
 {
@@ -19,6 +33,10 @@ GLuint Cube::m_cubeColorLoc = 0;
 GLuint Cube::cube_vao = 0;
 GLuint Cube::cube_vbo = 0;
 GLuint Cube::cube_ebo = 0;
+
+const vec3 Cube::m_xAxis(1.0f,0.0f,0.0f);
+const vec3 Cube::m_yAxis(0.0f,1.0f,0.0f);
+const vec3 Cube::m_zAxis(0.0f,0.0f,1.0f);
 
 const std::vector<GLfloat> Cube::m_vertexes = {
 		1.0f, 1.0f, 1.0f, 1.0f,  // v0,v1,v2,v3 (front)

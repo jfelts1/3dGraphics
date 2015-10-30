@@ -8,6 +8,9 @@
 #include <array>
 #include <vector>
 #include <cassert>
+#include <cstdio>
+#include <iostream>
+#include <tuple>
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
 #include <glm/mat4x4.hpp> // glm::mat4
@@ -19,6 +22,9 @@
 #define NUM_INDICES 6*NUM_FACES
 #define COLOR_ARRAY_SIZE 4
 #define POSITION_ARRAY_SIZE 4
+
+void printMat4(const glm::mat4 m);
+
 
 class Cube
 {
@@ -38,6 +44,12 @@ public:
 		m_scale = glm::vec3(1, 1, 1);
 		m_axisOfRot = glm::vec3(1,1,1);
 		m_angle = 0;
+		m_xAxisMult = 1;
+		m_yAxisMult = 1;
+		m_zAxisMult = 1;
+		m_xAngle = 0;
+		m_yAngle = 0;
+		m_zAngle = 0;
 	};
 	
 	virtual ~Cube();
@@ -47,6 +59,24 @@ public:
 	{
 		m_axisOfRot = rotAxis;
 		m_angle = angle;
+	}
+	
+	void setRotateX(const float magnitude, const float angle) noexcept
+	{
+		m_xAxisMult = magnitude;
+		m_xAngle = angle;
+	}
+	
+	void setRotateY(const float magnitude, const float angle) noexcept
+	{
+		m_yAxisMult = magnitude;
+		m_yAngle = angle;
+	}
+	
+	void setRotateZ(const float magnitude, const float angle) noexcept
+	{
+		m_zAxisMult = magnitude;
+		m_zAngle = angle;
 	}
 
 	static void initCubeShaders() noexcept
@@ -70,23 +100,23 @@ public:
 
 		glBindBuffer(GL_ARRAY_BUFFER, cube_vbo);
 		glBufferData(
-			GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(NUM_VERTEX + NUM_NORMALS), nullptr, GL_STATIC_DRAW);
+			GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_vertexes.size()*sizeof(GLfloat) + m_normals.size()*sizeof(GLfloat)), nullptr, GL_STATIC_DRAW);
 
-		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(NUM_VERTEX), m_vertexes.data());
-		offset += static_cast<GLintptr>(m_vertexes.size());
-		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(NUM_NORMALS), m_normals.data());
+		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(m_vertexes.size()*sizeof(GLfloat)), m_vertexes.data());
+		offset += static_cast<GLintptr>(m_vertexes.size()*sizeof(GLfloat));
+		glBufferSubData(GL_ARRAY_BUFFER, offset, static_cast<GLsizeiptr>(m_normals.size()*sizeof(GLfloat)), m_normals.data());
 
 		glGenBuffers(1, &cube_ebo);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_ebo);
 		glBufferData(
-			GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size()), m_indices.data(), GL_STATIC_DRAW);
+			GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(m_indices.size()*sizeof(GLushort)), m_indices.data(), GL_STATIC_DRAW);
 
 		glVertexAttribPointer(static_cast<GLuint>(m_cubeLoc), 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeLoc));
 
 		glVertexAttribPointer(
-			static_cast<GLuint>(m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()));
+			static_cast<GLuint>(m_cubeNormalLoc), 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(m_vertexes.size()*sizeof(GLfloat)));
 
 		glEnableVertexAttribArray(static_cast<GLuint>(m_cubeNormalLoc));
 	}
@@ -100,14 +130,24 @@ public:
 	void display() const noexcept
 	{
 		glm::mat4 model_matrix = translate(glm::mat4(1.0f), glm::vec3(m_position[0], m_position[1], m_position[2]));
-		model_matrix = rotate(model_matrix,m_angle,m_axisOfRot);
+		model_matrix = rotate(model_matrix,-m_xAngle,m_xAxis*m_xAxisMult);
+		printf("xRot\n");
+		printMat4(model_matrix);
+		model_matrix = rotate(model_matrix,m_yAngle,m_yAxis*m_yAxisMult);
+		printf("yRot\n");
+		printMat4(model_matrix);
+		model_matrix = rotate(model_matrix,m_zAngle,m_zAxis*m_zAxisMult);
+		printf("zRot\n");
+		model_matrix = rotate(model_matrix,-m_yAngle,m_yAxis*m_yAxisMult);
+		model_matrix = rotate(model_matrix,m_xAngle,m_xAxis*m_xAxisMult);
+		printMat4(model_matrix);
 		model_matrix = scale(model_matrix, m_scale);
-			
+		
 		glUniformMatrix4fv(
 				static_cast<GLint>(m_cubeMatrixLoc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_matrix[0]));
 
-		glUniform4fv(static_cast<GLint>(m_cubeColorLoc), 1, const_cast<GLfloat*>(&m_color[0]));
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, nullptr);
+		glUniform4fv(static_cast<GLint>(m_cubeColorLoc), 1, const_cast<GLfloat*>(m_color.data()));
+		glDrawElements(GL_TRIANGLES, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
 	}
 
 private:
@@ -118,6 +158,16 @@ private:
 	std::array<GLfloat, POSITION_ARRAY_SIZE> m_position;
 	glm::vec3 m_scale;
 	glm::vec3 m_axisOfRot;
+	
+	static const glm::vec3 m_xAxis;
+	float m_xAxisMult;
+	float m_xAngle;
+	static const glm::vec3 m_yAxis;
+	float m_yAxisMult;
+	float m_yAngle;
+	static const glm::vec3 m_zAxis;
+	float m_zAxisMult;
+	float m_zAngle;
 	float m_angle;
 
 	static GLuint m_cubeProgram;
