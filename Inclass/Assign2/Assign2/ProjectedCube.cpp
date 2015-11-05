@@ -172,16 +172,24 @@ void Display(void)
 	// Choose whether the back face will be enabled or not
 
 	if (cullface)
+    {
 		glEnable(GL_CULL_FACE);
+    }
 	else
+    {
 		glDisable(GL_CULL_FACE);
+    }
 
 	// Choose whether to draw in wireframe mode or not
 
 	if (show_line)
+    {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 	else
+    {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
 
 	// Setup view matrix
@@ -204,7 +212,8 @@ void Display(void)
 		projection_matrix = frustum(-1.0f, 1.0f, -1.0f, 1.0f, zNear, zFar);
 	}
 
-	glUniformMatrix4fv(static_cast<GLint>(projection_matrix_loc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection_matrix[0]));
+    glUniformMatrix4fv(
+                static_cast<GLint>(projection_matrix_loc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection_matrix[0]));
 	mat4 model_matrix;
 	glUniformMatrix4fv(static_cast<GLint>(matrix_loc), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_matrix[0]));
 
@@ -267,6 +276,9 @@ void keyboard(unsigned char key, int x, int y){
 /*********/
 int main(int argc, char** argv)
 {
+    glewExperimental = GL_TRUE;
+    glutInitContextVersion(3,3);
+
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
 	glutInitWindowSize(512, 512);
