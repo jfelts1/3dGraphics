@@ -27,6 +27,9 @@
     <ClCompile Include="Utils\ShaderUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Toggle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader_projected.fs">
@@ -42,6 +45,9 @@
     </ClInclude>
     <ClInclude Include="Utils\ShaderUtils.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Toggle.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
