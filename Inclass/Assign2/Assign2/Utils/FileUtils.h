@@ -9,6 +9,7 @@ James Felts 2015
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 namespace Utils
 {
 	//returns the entire file as a string

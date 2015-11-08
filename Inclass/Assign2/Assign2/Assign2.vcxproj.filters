@@ -27,9 +27,6 @@
     <ClCompile Include="Utils\ShaderUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Toggle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader_projected.fs">

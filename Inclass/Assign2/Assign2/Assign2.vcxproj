@@ -136,7 +136,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ProjectedCube.cpp" />
-    <ClCompile Include="Toggle.cpp" />
     <ClCompile Include="Utils\FileUtils.cpp" />
     <ClCompile Include="Utils\ShaderUtils.cpp" />
   </ItemGroup>

@@ -6,22 +6,29 @@ James Felts 2015
 using std::string;
 using std::ifstream;
 
-std::string Utils::readFileAsText(std::string filepath)
+string Utils::readFileAsText(string filepath)
 {
 	string rawString;
 	string tmp;
 	ifstream fin;
 	fin.open(filepath.c_str(), fin.in);
-	std::getline(fin, tmp);
-	rawString.append(tmp);
-	rawString.push_back('\n');
-	while (!fin.eof())
+	if (fin.is_open())
 	{
-		std::getline(fin, tmp);
+		getline(fin, tmp);
 		rawString.append(tmp);
 		rawString.push_back('\n');
-	}
+		while (!fin.eof())
+		{
+			getline(fin, tmp);
+			rawString.append(tmp);
+			rawString.push_back('\n');
+		}
 
-	fin.close();
+		fin.close();
+	}
+	else
+	{
+		throw std::runtime_error("File not found:" + filepath);
+	}
 	return rawString;
 }
