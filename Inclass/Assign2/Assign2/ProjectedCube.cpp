@@ -60,15 +60,7 @@ inline void isometricToggle()
         orthographic = true;
         orthgraphicToggle();
 		cout << "Isometric enabled" << endl;
-		//a precalulated matrix that gives isometric projection when multipled with the eye matrix
-		mat3 tmp(
-			sqrt(3.0f), 0.0f, -sqrt(3.0f),
-			1.0f, 2.0f, 1.0f,
-			sqrt(2.0f), -sqrt(2.0f), sqrt(2.0f));
-		tmp *= (1.0f / sqrt(6.0f));
-		vec3 eyeTmp = tmp*eye;
-		view_matrix = lookAt(eyeTmp, center, vec3(-1.0f, -1.0f, -1.0f));
-		projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
+        view_matrix = lookAt(vec3(2.0f,2.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
 
@@ -79,21 +71,7 @@ inline void dimetricToggle()
         orthographic = true;
         orthgraphicToggle();
 		cout << "Dimetric enabled" << endl;
-		//should be anything not equal to 45 deg since that would be isometric projection
-		const float phi = radians(15.0f);
-		//45 deg makes the rotation make the cube be edge on matching dimetric projection
-		const float theta = radians(45.0f);
-		mat3 xMat(
-			1.0f, 0.0f, 0.0f,
-			0.0f, cos(phi), -sin(phi),
-			0.0f, sin(phi), cos(phi));
-		mat3 yMat(
-			cos(theta), 0.0f, sin(theta),
-			0.0f, 1.0f, 0.0f,
-			-sin(theta), 0.0f, cos(theta));
-		vec3 eyeTmp = eye*xMat*yMat;
-		view_matrix = lookAt(eyeTmp, center, vec3(-1.0f, -1.0f, -1.0f));
-        projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
+        view_matrix = lookAt(vec3(2.0f,1.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
 
@@ -104,26 +82,7 @@ inline void trimetricToggle()
         orthographic = true;
         orthgraphicToggle();
 		cout << "Trimetric enabled" << endl;
-		//all three angles should be diffrent or the projection becomes dimetric or isometric
-		const float gamma = radians(5.0f);
-		const float beta = radians(30.0f);
-		const float psi = radians(0.0f);
-
-		mat3 xMat(
-			1.0f, 0.0f, 0.0f,
-			0.0f, cos(gamma), -sin(gamma),
-			0.0f, sin(gamma), cos(gamma));
-		mat3 yMat(
-			cos(beta), 0.0f, sin(beta),
-			0.0f, 1.0f, 0.0f,
-			-sin(beta), 0.0f, cos(beta));
-		mat3 zMat(
-			cos(psi), sin(psi), 0.0f,
-			-sin(psi), cos(psi), 0.0f,
-			0.0f, 0.0f, 1.0f);
-		vec3 eyeTmp = eye*xMat*yMat*zMat;
-		view_matrix = lookAt(eyeTmp, center, vec3(-1.0f, -1.0f, -1.0f));
-		projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
+        view_matrix = lookAt(vec3(1.0f,2.0f,3.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
 

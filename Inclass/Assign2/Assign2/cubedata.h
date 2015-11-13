@@ -1,3 +1,4 @@
+//header to keep the cube info from cluttering up other files
 #ifndef CUBEDATA
 #define CUBEDATA
 #include <GL/glew.h>
