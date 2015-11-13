@@ -133,23 +133,7 @@ inline void onePointToggle()
 	{
         orthographic = false;
         orthgraphicToggle();
-		cout << "One Point enabled" << endl;
-        //90 deg fov
-        float top = zNear*tan(radians(90.0f));
-        float right = top*(SCREEN_SIZE_X/SCREEN_SIZE_Y);
-        float left = -right;
-        float bottom = -top;
-        mat4 perspectiveProj(
-             2*zNear/(right-left),0.0f,(right+left)/(right-left),0.0f,
-             0.0f,2*zNear/(top-bottom),(top+bottom)/(top-bottom),0.0f,
-             0.0f,0.0f,-(zFar+zNear)/(zFar-zNear),-2*zFar*zNear/(zFar-zNear),
-             0.0f,0.0f,-1.0f,0.0f);
-        mat4 orthoProj(
-             1.0f,0.0f,0.0f,0.0f,
-             0.0f,1.0f,0.0f,0.0f,
-             0.0f,0.0f,0.0f,0.0f,
-             0.0f,0.0f,0.0f,1.0f);
-        //projection_matrix = orthoProj+perspectiveProj;
+        cout << "One Point enabled" << endl;
         view_matrix = lookAt(vec3(0.0f,0.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
@@ -161,23 +145,7 @@ inline void twoPointToggle()
         orthographic = false;
         orthgraphicToggle();
 		cout << "Two Point enabled" << endl;
-        //90 deg fov
-        float top = zNear*tan(radians(90.0f));
-        float right = top*(SCREEN_SIZE_X/SCREEN_SIZE_Y);
-        float left = -right;
-        float bottom = -top;
-        mat4 perspectiveProj(
-             2*zNear/(right-left),0.0f,(right+left)/(right-left),0.0f,
-             0.0f,2*zNear/(top-bottom),(top+bottom)/(top-bottom),0.0f,
-             0.0f,0.0f,-(zFar+zNear)/(zFar-zNear),-2*zFar*zNear/(zFar-zNear),
-             0.0f,0.0f,-1.0f,0.0f);
-        mat4 orthoProj(
-             1.0f,0.0f,0.0f,0.0f,
-             0.0f,1.0f,0.0f,0.0f,
-             0.0f,0.0f,0.0f,0.0f,
-             0.0f,0.0f,0.0f,1.0f);
-        //projection_matrix = orthoProj+perspectiveProj;
-        view_matrix = lookAt(vec3(0.0f,2.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
+        view_matrix = lookAt(vec3(2.0f,0.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
 
@@ -188,24 +156,7 @@ inline void threePointToggle()
         orthographic = false;
         orthgraphicToggle();
 		cout << "Three Point enabled" << endl;
-        //90 deg fov
-        float top = zNear*tan(radians(90.0f));
-        float right = top*(SCREEN_SIZE_X/SCREEN_SIZE_Y);
-        float left = -right;
-        float bottom = -top;
-        mat4 perspectiveProj(
-             2*zNear/(right-left),0.0f,(right+left)/(right-left),0.0f,
-             0.0f,2*zNear/(top-bottom),(top+bottom)/(top-bottom),0.0f,
-             0.0f,0.0f,-(zFar+zNear)/(zFar-zNear),-2*zFar*zNear/(zFar-zNear),
-             0.0f,0.0f,-1.0f,0.0f);
-        mat4 orthoProj(
-             1.0f,0.0f,0.0f,0.0f,
-             0.0f,1.0f,0.0f,0.0f,
-             0.0f,0.0f,0.0f,0.0f,
-             0.0f,0.0f,0.0f,1.0f);
-        //projection_matrix = orthoProj+perspectiveProj;
         view_matrix = lookAt(vec3(2.0f,2.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
-
 	}
 }
 
