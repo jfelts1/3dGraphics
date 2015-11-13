@@ -213,3 +213,6 @@ ModelManifest.xml
 
 #a.out
 a.out
+
+#trace files
+*.trace
