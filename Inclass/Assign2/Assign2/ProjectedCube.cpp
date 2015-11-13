@@ -126,8 +126,22 @@ inline void onePointToggle()
 	if(onePoint)
 	{
 		cout << "One Point enabled" << endl;
-		//TODO: fille in one point projection logic
-
+        //90 deg fov
+        float top = zNear*tan(radians(90.0f));
+        float right = top*(SCREEN_SIZE_X/SCREEN_SIZE_Y);
+        float left = -right;
+        float bottom = -top;
+        mat4 perspectiveProj(
+             2*zNear/(right-left),0.0f,(right+left)/(right-left),0.0f,
+             0.0f,2*zNear/(top-bottom),(top+bottom)/(top-bottom),0.0f,
+             0.0f,0.0f,-(zFar+zNear)/(zFar-zNear),-2*zFar*zNear/(zFar-zNear),
+             0.0f,0.0f,-1.0f,0.0f);
+        mat4 orthoProj(
+             1.0f,0.0f,0.0f,0.0f,
+             0.0f,1.0f,0.0f,0.0f,
+             0.0f,0.0f,0.0f,0.0f,
+             0.0f,0.0f,0.0f,1.0f);
+        projection_matrix = orthoProj+perspectiveProj;
 	}
 }
 
@@ -184,6 +198,7 @@ void Initialize(void)
 
 void Display(void)
 {
+    //glFrontFace(GL_CW);
 	// Clear
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Setup
@@ -319,7 +334,7 @@ int main(int argc, char** argv)
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
-	glutInitWindowSize(512, 512);
+    glutInitWindowSize(SCREEN_SIZE_X, SCREEN_SIZE_Y);
 
 	glutCreateWindow("ProjectedCube");
 

@@ -22,6 +22,9 @@
 #include "Utils/ShaderUtils.h"
 #include "cubedata.h"
 
+#define SCREEN_SIZE_X 512
+#define SCREEN_SIZE_Y 512
+
 void init();
 void display(void);
 void Reshape(int width, int height);
