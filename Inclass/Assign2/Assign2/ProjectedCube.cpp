@@ -93,7 +93,7 @@ inline void dimetricToggle()
 			-sin(theta), 0.0f, cos(theta));
 		vec3 eyeTmp = eye*xMat*yMat;
 		view_matrix = lookAt(eyeTmp, center, vec3(-1.0f, -1.0f, -1.0f));
-        //projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
+        projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
 	}
 }
 
