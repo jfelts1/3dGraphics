@@ -41,15 +41,15 @@ inline void orthgraphicToggle()
 {
 	if(orthographic)
 	{
-		cout << "Orthographic disabled" << endl;
-		view_matrix = lookAt(eye, center, vec3(0.0f, 1.0f, 0.0f));
-		projection_matrix = frustum(-1.0f, 1.0f, -1.0f, 1.0f, zNear, zFar);
+        cout << "Orthographic enabled" << endl;
+        view_matrix = lookAt(eye, center, vec3(0.0f, 1.0f, 0.0f));
+        projection_matrix = ortho(-1.0f, 1.0f, -1.0f, 1.0f, zNear, zFar);
 	}
 	else
 	{
-		cout << "Orthographic enabled" << endl;
-		view_matrix = lookAt(eye, center, vec3(0.0f, 1.0f, 0.0f));
-		projection_matrix = ortho(-1.0f, 1.0f, -1.0f, 1.0f, zNear, zFar);
+        cout << "Orthographic disabled" << endl;
+        view_matrix = lookAt(eye, center, vec3(0.0f, 1.0f, 0.0f));
+        projection_matrix = frustum(-1.0f, 1.0f, -1.0f, 1.0f, zNear, zFar);
 	}
 }
 
@@ -57,6 +57,8 @@ inline void isometricToggle()
 {
 	if(isometric)
 	{
+        orthographic = true;
+        orthgraphicToggle();
 		cout << "Isometric enabled" << endl;
 		//a precalulated matrix that gives isometric projection when multipled with the eye matrix
 		mat3 tmp(
@@ -74,6 +76,8 @@ inline void dimetricToggle()
 {
 	if(dimetric)
 	{
+        orthographic = true;
+        orthgraphicToggle();
 		cout << "Dimetric enabled" << endl;
 		//should be anything not equal to 45 deg since that would be isometric projection
 		const float phi = radians(15.0f);
@@ -89,7 +93,7 @@ inline void dimetricToggle()
 			-sin(theta), 0.0f, cos(theta));
 		vec3 eyeTmp = eye*xMat*yMat;
 		view_matrix = lookAt(eyeTmp, center, vec3(-1.0f, -1.0f, -1.0f));
-		projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
+        //projection_matrix = ortho(2.0f, -2.0f, -2.0f, 2.0f, -5.0f, 5.0f);
 	}
 }
 
@@ -97,6 +101,8 @@ inline void trimetricToggle()
 {
 	if(trimetric)
 	{
+        orthographic = true;
+        orthgraphicToggle();
 		cout << "Trimetric enabled" << endl;
 		//all three angles should be diffrent or the projection becomes dimetric or isometric
 		const float gamma = radians(5.0f);
@@ -125,6 +131,8 @@ inline void onePointToggle()
 {
 	if(onePoint)
 	{
+        orthographic = false;
+        orthgraphicToggle();
 		cout << "One Point enabled" << endl;
         //90 deg fov
         float top = zNear*tan(radians(90.0f));
@@ -141,7 +149,8 @@ inline void onePointToggle()
              0.0f,1.0f,0.0f,0.0f,
              0.0f,0.0f,0.0f,0.0f,
              0.0f,0.0f,0.0f,1.0f);
-        projection_matrix = orthoProj+perspectiveProj;
+        //projection_matrix = orthoProj+perspectiveProj;
+        view_matrix = lookAt(vec3(0.0f,0.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
 
@@ -149,9 +158,26 @@ inline void twoPointToggle()
 {
 	if (twoPoint)
 	{
+        orthographic = false;
+        orthgraphicToggle();
 		cout << "Two Point enabled" << endl;
-		//TODO: fille in two point projection logic
-
+        //90 deg fov
+        float top = zNear*tan(radians(90.0f));
+        float right = top*(SCREEN_SIZE_X/SCREEN_SIZE_Y);
+        float left = -right;
+        float bottom = -top;
+        mat4 perspectiveProj(
+             2*zNear/(right-left),0.0f,(right+left)/(right-left),0.0f,
+             0.0f,2*zNear/(top-bottom),(top+bottom)/(top-bottom),0.0f,
+             0.0f,0.0f,-(zFar+zNear)/(zFar-zNear),-2*zFar*zNear/(zFar-zNear),
+             0.0f,0.0f,-1.0f,0.0f);
+        mat4 orthoProj(
+             1.0f,0.0f,0.0f,0.0f,
+             0.0f,1.0f,0.0f,0.0f,
+             0.0f,0.0f,0.0f,0.0f,
+             0.0f,0.0f,0.0f,1.0f);
+        //projection_matrix = orthoProj+perspectiveProj;
+        view_matrix = lookAt(vec3(0.0f,2.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 	}
 }
 
@@ -159,8 +185,26 @@ inline void threePointToggle()
 {
 	if (threePoint)
 	{
+        orthographic = false;
+        orthgraphicToggle();
 		cout << "Three Point enabled" << endl;
-		//TODO: fille in three point projection logic
+        //90 deg fov
+        float top = zNear*tan(radians(90.0f));
+        float right = top*(SCREEN_SIZE_X/SCREEN_SIZE_Y);
+        float left = -right;
+        float bottom = -top;
+        mat4 perspectiveProj(
+             2*zNear/(right-left),0.0f,(right+left)/(right-left),0.0f,
+             0.0f,2*zNear/(top-bottom),(top+bottom)/(top-bottom),0.0f,
+             0.0f,0.0f,-(zFar+zNear)/(zFar-zNear),-2*zFar*zNear/(zFar-zNear),
+             0.0f,0.0f,-1.0f,0.0f);
+        mat4 orthoProj(
+             1.0f,0.0f,0.0f,0.0f,
+             0.0f,1.0f,0.0f,0.0f,
+             0.0f,0.0f,0.0f,0.0f,
+             0.0f,0.0f,0.0f,1.0f);
+        //projection_matrix = orthoProj+perspectiveProj;
+        view_matrix = lookAt(vec3(2.0f,2.0f,2.0f), center, vec3(0.0f, 1.0f, 0.0f));
 
 	}
 }
