@@ -93,6 +93,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>D:\Users\James\Desktop\Files\Programming\3dGraphicPrinciples\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -125,6 +127,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>D:\Users\James\Desktop\Files\Programming\3dGraphicPrinciples\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -144,6 +147,8 @@
     <None Include="shader_projected.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cubedata.h" />
+    <ClInclude Include="ProjectedCube.h" />
     <ClInclude Include="Toggle.h" />
     <ClInclude Include="Utils\FileUtils.h" />
     <ClInclude Include="Utils\ShaderUtils.h" />
