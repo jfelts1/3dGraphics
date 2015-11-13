@@ -229,7 +229,7 @@ void Display(void)
 	// Setup
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+    glDepthFunc(GL_LEQUAL);
 
 
 	// Setup view matrix
