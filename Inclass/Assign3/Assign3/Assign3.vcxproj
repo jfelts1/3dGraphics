@@ -153,6 +153,9 @@
     <None Include="smoothshader.frag" />
     <None Include="smoothshader.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SmoothCone.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

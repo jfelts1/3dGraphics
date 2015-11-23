@@ -1,63 +1,43 @@
-#ifdef _MSC_VER
-#if _MSC_VER < 1900
-#pragma message("Untested on this compiler, may not work")
-#endif
-#pragma warning(disable: 4505 4514 4668 4820 4710 4711)
-#endif
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#define GLM_FORCE_RADIANS 
-#define GLM_FORCE_CXX11
-
-#include <glm/mat4x4.hpp> // glm::mat4
-#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+#include "SmoothCone.h"
 using namespace glm;
+using std::vector;
+using std::array;
 
-#define NumConePoints  18
-#define NumTriangles   18
-#define NumIndices     3*NumTriangles
+void updateVertexNormals()
+{
+	//bad but temporary
+	for (size_t i = 0;i < faces.size();i++)
+	{
+		vector<vec3> normalsToAvg;
+		for(auto& ind:faces[i])
+		{
+			for(auto& ind2:faces)
+			{
+				if(faces[i] != ind2 && contains(ind2.begin(),ind2.end(),ind))
+				{
+					normalsToAvg.emplace_back(triangleNormal(vec3(points[ind2[0]]), vec3(points[ind2[1]]), vec3(points[ind2[2]])));
+				}
+			}
+		}
+		normals[i] = computeNormal(normalsToAvg);
+		normalsToAvg.clear();
+	}
+}
 
-GLuint  cone_vao;
-GLuint  cone_vbo;
-GLuint  cone_ebo;
+vec3 computeNormal(const vector<vec3> normalsToAvg)
+{
+	vec3 ret;
+	for(auto& norm:normalsToAvg)
+	{
+		ret += norm;
+	}
+	ret /= normalize(ret);
+	return ret;
+}
 
-GLuint position_loc;
-GLuint normal_loc;
+void initializeCone() {
 
-mat4 view;
-mat4 projection;
-
-GLuint program;
-
-float aspect = 0.0;
-bool show_line = false;
-
-
-GLuint indices[NumIndices];
-vec4 points[NumConePoints + 1];
-vec3 normals[NumConePoints + 1];
-
-static const double kPI = 3.1415926535897932384626433832795;
-int index = 0;
-
-
-
-static const GLchar* ReadFile(const char* filename);
-GLuint initShaders(const char* v_shader, const char* f_shader);
-void init();
-void display(void);
-void Reshape(int width, int height);
-void initializeCone();
-void updateVertexNormals();
-
-
-void initializeCone(){
-
+	//top point of cone
 	points[index][0] = 0.0;
 	points[index][1] = 1.0;
 	points[index][2] = 0.0;
@@ -69,14 +49,13 @@ void initializeCone(){
 
 	index++;
 
-	int i;
 	float theta;
-	int tIndices = 0;
+	size_t tIndices = 0;
+	GLuint i1, i2, i3;
 
-
-	for (i = 0; i < NumConePoints; ++i) {
-
-		theta = i*20.0f*kPI / 180.0f;
+	for (size_t i = 0; i < NumConePoints; ++i, index++)
+	{
+		theta = static_cast<float>(i*20.0f*kPI / 180.0f);
 
 		points[index][0] = cos(theta);
 		points[index][1] = -1.0;
@@ -87,115 +66,38 @@ void initializeCone(){
 		normals[index][1] = 0.0;
 		normals[index][2] = 0.0;
 
-		if (i <= (NumConePoints - 2)){
-
-			indices[tIndices] = 0; tIndices++;
-			indices[tIndices] = index; tIndices++;
-			indices[tIndices] = index + 1; tIndices++;
-
+		if (i <= (NumConePoints - 2))
+		{
+			indices[tIndices] = 0u;
+			i1 = 0u;
+			tIndices++;
+			indices[tIndices] = index;
+			i2 = index;
+			tIndices++;
+			indices[tIndices] = index + 1;
+			i3 = index + 1;
+			tIndices++;
 		}
-		else{
-			indices[tIndices] = 0; tIndices++;
-			indices[tIndices] = index; tIndices++;
-			indices[tIndices] = 1; tIndices++;
+		//last triangle
+		else
+		{
+			indices[tIndices] = 0u;
+			i1 = 0u;
+			tIndices++;
+			indices[tIndices] = index;
+			i2 = index;
+			tIndices++;
+			indices[tIndices] = 1u;
+			i3 = 1u;
+			tIndices++;
 		}
-		index++;
+		faces[i] = faceIndices{ i1,i2,i3 };
 	}
-
+	for(auto& face : faces)
+	{
+		printf("i1:%i, i2:%i, i3: %i\n", face[0],face[1],face[2]);
+	}
 	updateVertexNormals();
-
-}
-
-void updateVertexNormals(){}
-
-
-static const GLchar* ReadFile(const char* filename)
-{
-	FILE* infile;
-
-#ifdef WIN32
-
-	fopen_s(&infile, filename, "rb");
-
-#else
-	infile = fopen(filename, "r");
-#endif
-	if (!infile) {
-		std::cerr << "Unable to open file '" << filename << "'" << std::endl;
-		return NULL;
-	}
-
-	fseek(infile, 0, SEEK_END);
-	int len = ftell(infile);
-	fseek(infile, 0, SEEK_SET);
-
-	GLchar* source = new GLchar[len + 1];
-	fread(source, 1, len, infile);
-	fclose(infile);
-	source[len] = 0;
-
-	return const_cast<const GLchar*> (source);
-}
-
-GLuint initShaders(const char *v_shader, const char *f_shader) {
-
-	GLuint p = glCreateProgram();
-	GLuint v = glCreateShader(GL_VERTEX_SHADER);
-	GLuint f = glCreateShader(GL_FRAGMENT_SHADER);
-
-	const char * vs = ReadFile(v_shader);
-	const char * fs = ReadFile(f_shader);
-
-	glShaderSource(v, 1, &vs, NULL);
-	glShaderSource(f, 1, &fs, NULL);
-	delete[] vs;
-	delete[] fs;
-
-	glCompileShader(v);
-	GLint compiled;
-	glGetShaderiv(v, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		GLsizei len;
-		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &len);
-
-		GLchar* log = new GLchar[len + 1];
-		glGetShaderInfoLog(v, len, &len, log);
-		std::cerr << "Vertex Shader compilation failed: " << log << std::endl;
-		delete[] log;
-
-
-	}
-
-	glCompileShader(f);
-
-	glGetShaderiv(f, GL_COMPILE_STATUS, &compiled);
-	if (!compiled) {
-		GLsizei len;
-		glGetShaderiv(f, GL_INFO_LOG_LENGTH, &len);
-
-		GLchar* log = new GLchar[len + 1];
-		glGetShaderInfoLog(f, len, &len, log);
-		std::cerr << "Fragment Shader compilation failed: " << log << std::endl;
-		delete[] log;
-	}
-
-	glAttachShader(p, v);
-	glAttachShader(p, f);
-	glLinkProgram(p);
-
-	GLint linked;
-	glGetProgramiv(p, GL_LINK_STATUS, &linked);
-	if (!linked) {
-		GLsizei len;
-		glGetProgramiv(p, GL_INFO_LOG_LENGTH, &len);
-
-		GLchar* log = new GLchar[len + 1];
-		glGetProgramInfoLog(p, len, &len, log);
-		std::cerr << "Shader linking failed: " << log << std::endl;
-		delete[] log;
-	}
-	glUseProgram(p);
-	return p;
 
 }
 
@@ -210,31 +112,30 @@ void Initialize(void){
 	glGenBuffers(1, &cone_vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, cone_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(points) + sizeof(normals), NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(points), points);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points) + sizeof(normals), nullptr, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(points), points.data());
 	offset += sizeof(points);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(normals), normals);
+	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(normals), normals.data());
 
 	glGenBuffers(1, &cone_ebo);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), (indices), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(), GL_STATIC_DRAW);
 
 
 	program = initShaders("smoothshader.vert", "smoothshader.frag");
 
 	// attribute indices
 
-	position_loc = glGetAttribLocation(program, "VertexPosition");
-	glVertexAttribPointer(position_loc, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	position_loc = static_cast<GLuint>(glGetAttribLocation(program, "VertexPosition"));
+	glVertexAttribPointer(position_loc, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(position_loc);
 
-	normal_loc = glGetAttribLocation(program, "VertexNormal");
-	glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(points));
+	normal_loc = static_cast<GLuint>(glGetAttribLocation(program, "VertexNormal"));
+	glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(points)));
 	glEnableVertexAttribArray(normal_loc);
-
 	
-	view = glm::lookAt(vec3(0.0f, 0.0f, 5.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	view = lookAt(vec3(0.0f, 0.0f, 5.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	
 	// Initialize shader material and lighting parameters
 
@@ -249,10 +150,16 @@ void Initialize(void){
 
 	float material_shininess = 150.0f;
 
-	glUniform3fv(glGetUniformLocation(program, "Material.Ka"), 1, (GLfloat*)&material_ambient);
-	glUniform3fv(glGetUniformLocation(program, "Light.La"), 1, (GLfloat*)&light_ambient);
+	glUniform3fv(glGetUniformLocation(program, "Material.Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
+	glUniform3fv(glGetUniformLocation(program, "Light.La"), 1, reinterpret_cast<GLfloat*>(&light_ambient));
 	
 	// Set other lighting parameters here
+
+	glUniform3fv(glGetUniformLocation(program, "Material.Kd"), 1, reinterpret_cast<GLfloat*>(&material_diffuse));
+	glUniform3fv(glGetUniformLocation(program, "Light.Ld"), 1, reinterpret_cast<GLfloat*>(&light_diffuse));
+	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, reinterpret_cast<GLfloat*>(&material_specular));
+	glUniform3fv(glGetUniformLocation(program, "Light.Ls"), 1, reinterpret_cast<GLfloat*>(&light_specular));
+	glUniform3fv(glGetUniformLocation(program, "Material.Shininess"), 1, &material_shininess);
 
 	
 	projection = mat4(1.0f);
@@ -277,18 +184,18 @@ void Display(void)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	vec4 lightpos = view*vec4(0.0f, 0.0f, 2.0f, 1.0f);
-	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, (GLfloat*)&lightpos);
+	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&lightpos));
 
 	
 	// Setup matrices
 
-	mat4 model = glm::translate(glm::mat4(1.0f), vec3(0.0f, 0.0f, -1.0f));
-	projection = glm::perspective(70.0f, aspect, 0.3f, 100.0f);
+	mat4 model = translate(mat4(1.0f), vec3(0.0f, 0.0f, -1.0f));
+	projection = perspective(70.0f, aspect, 0.3f, 100.0f);
 	mat4 mvp = projection*view*model;
 
 
-	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, (GLfloat*)&mvp[0]);
-	glUniformMatrix4fv(glGetUniformLocation(program, "ProjectionMatrix"), 1, GL_FALSE, (GLfloat*)&projection[0]);
+	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
+	glUniformMatrix4fv(glGetUniformLocation(program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 
 	// You need to add normal matrix and model view matrix
 
@@ -296,7 +203,7 @@ void Display(void)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ebo);
 
 
-	glDrawElements(GL_TRIANGLES, NumIndices, GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, NumIndices, GL_UNSIGNED_INT, nullptr);
 	glutSwapBuffers();
 }
 
@@ -308,7 +215,9 @@ void Reshape(int width, int height)
 }
 
 
+// ReSharper disable CppParameterNeverUsed
 void keyboard(unsigned char key, int x, int y){
+	// ReSharper restore CppParameterNeverUsed
 	switch (key){
 	case 'q':case 'Q':
 		exit(EXIT_SUCCESS);
@@ -343,7 +252,94 @@ int main(int argc, char** argv){
 	return 0;
 }
 
+static const GLchar* ReadFile(const char* filename)
+{
+	FILE* infile;
+
+#ifdef WIN32
+
+	fopen_s(&infile, filename, "rb");
+
+#else
+	infile = fopen(filename, "r");
+#endif
+	if (!infile) {
+		std::cerr << "Unable to open file '" << filename << "'" << std::endl;
+		return nullptr;
+	}
+
+	fseek(infile, 0, SEEK_END);
+	int len = ftell(infile);
+	fseek(infile, 0, SEEK_SET);
+
+	GLchar* source = new GLchar[static_cast<size_t>(len + 1)];
+	fread(source, 1, static_cast<size_t>(len), infile);
+	fclose(infile);
+	source[len] = 0;
+
+	return const_cast<const GLchar*> (source);
+}
+
+GLuint initShaders(const char *v_shader, const char *f_shader) {
+
+	GLuint p = glCreateProgram();
+	GLuint v = glCreateShader(GL_VERTEX_SHADER);
+	GLuint f = glCreateShader(GL_FRAGMENT_SHADER);
+
+	const char * vs = ReadFile(v_shader);
+	const char * fs = ReadFile(f_shader);
+
+	glShaderSource(v, 1, &vs, nullptr);
+	glShaderSource(f, 1, &fs, nullptr);
+	delete[] vs;
+	delete[] fs;
+
+	glCompileShader(v);
+	GLint compiled;
+	glGetShaderiv(v, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		GLsizei len;
+		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &len);
+
+		GLchar* log = new GLchar[static_cast<size_t>(len + 1)];
+		glGetShaderInfoLog(v, len, &len, log);
+		std::cerr << "Vertex Shader compilation failed: " << log << std::endl;
+		delete[] log;
 
 
+	}
+
+	glCompileShader(f);
+
+	glGetShaderiv(f, GL_COMPILE_STATUS, &compiled);
+	if (!compiled) {
+		GLsizei len;
+		glGetShaderiv(f, GL_INFO_LOG_LENGTH, &len);
+
+		GLchar* log = new GLchar[static_cast<size_t>(len + 1)];
+		glGetShaderInfoLog(f, len, &len, log);
+		std::cerr << "Fragment Shader compilation failed: " << log << std::endl;
+		delete[] log;
+	}
+
+	glAttachShader(p, v);
+	glAttachShader(p, f);
+	glLinkProgram(p);
+
+	GLint linked;
+	glGetProgramiv(p, GL_LINK_STATUS, &linked);
+	if (!linked) {
+		GLsizei len;
+		glGetProgramiv(p, GL_INFO_LOG_LENGTH, &len);
+
+		GLchar* log = new GLchar[static_cast<size_t>(len + 1)];
+		glGetProgramInfoLog(p, len, &len, log);
+		std::cerr << "Shader linking failed: " << log << std::endl;
+		delete[] log;
+	}
+	glUseProgram(p);
+	return p;
+
+}
 
 /*************/
