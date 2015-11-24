@@ -2,29 +2,20 @@
 using namespace glm;
 using std::vector;
 using std::array;
+using std::advance;
+using std::copy;
 
 void updateVertexNormals()
 {
-	//bad but temporary
-	for (size_t i = 0;i < faces.size();i++)
+	for (size_t i = 0;i < points.size();i++)
 	{
-		vector<vec3> normalsToAvg;
-		for(auto& ind:faces[i])
-		{
-			for(auto& ind2:faces)
-			{
-				if(faces[i] != ind2 && contains(ind2.begin(),ind2.end(),ind))
-				{
-					normalsToAvg.emplace_back(triangleNormal(vec3(points[ind2[0]]), vec3(points[ind2[1]]), vec3(points[ind2[2]])));
-				}
-			}
-		}
-		normals[i] = computeNormal(normalsToAvg);
+		vector<vec3> normalsToAvg = getAdjacentTriangleNormals(i);
+		normals[i] = computeVertexNormal(normalsToAvg);
 		normalsToAvg.clear();
 	}
 }
 
-vec3 computeNormal(const vector<vec3> normalsToAvg)
+vec3 computeVertexNormal(const vector<vec3> normalsToAvg) noexcept
 {
 	vec3 ret;
 	for(auto& norm:normalsToAvg)
@@ -33,6 +24,30 @@ vec3 computeNormal(const vector<vec3> normalsToAvg)
 	}
 	ret /= normalize(ret);
 	return ret;
+}
+
+vector<vec3> getAdjacentTriangleNormals(const size_t ind) noexcept
+{
+	vector<vec3> ret;
+	static triangleIndices tmp;
+
+	for (auto beg = indices.begin(), end = indices.end();beg != end;advance(beg,NumPointsPerTriangle))
+	{
+		copy(beg, beg+NumPointsPerTriangle, tmp.begin());
+		if (contains(tmp.begin(), tmp.end(), ind))
+		{
+			ret.emplace_back(triangleNormal(vec3(points[tmp[0]]), vec3(points[tmp[1]]), vec3(points[tmp[2]])));
+		}
+	}
+	return ret;
+}
+
+void printIndices() noexcept
+{
+	for (size_t i = 0;i < indices.size();i+=3)
+	{
+		printf("i1:%i, i2:%i, i3:%i\n", indices[i], indices[i + 1], indices[i + 2]);
+	}
 }
 
 void initializeCone() {
@@ -51,7 +66,6 @@ void initializeCone() {
 
 	float theta;
 	size_t tIndices = 0;
-	GLuint i1, i2, i3;
 
 	for (size_t i = 0; i < NumConePoints; ++i, index++)
 	{
@@ -69,34 +83,24 @@ void initializeCone() {
 		if (i <= (NumConePoints - 2))
 		{
 			indices[tIndices] = 0u;
-			i1 = 0u;
 			tIndices++;
 			indices[tIndices] = index;
-			i2 = index;
 			tIndices++;
 			indices[tIndices] = index + 1;
-			i3 = index + 1;
 			tIndices++;
 		}
 		//last triangle
 		else
 		{
 			indices[tIndices] = 0u;
-			i1 = 0u;
 			tIndices++;
 			indices[tIndices] = index;
-			i2 = index;
 			tIndices++;
 			indices[tIndices] = 1u;
-			i3 = 1u;
 			tIndices++;
 		}
-		faces[i] = faceIndices{ i1,i2,i3 };
 	}
-	for(auto& face : faces)
-	{
-		printf("i1:%i, i2:%i, i3: %i\n", face[0],face[1],face[2]);
-	}
+	printIndices();
 	updateVertexNormals();
 
 }
@@ -179,9 +183,13 @@ void Display(void)
 	// Choose whether to draw in wireframe mode or not
 
 	if (show_line)
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
 	else
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 
 	vec4 lightpos = view*vec4(0.0f, 0.0f, 2.0f, 1.0f);
 	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&lightpos));
@@ -195,7 +203,8 @@ void Display(void)
 
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
-	glUniformMatrix4fv(glGetUniformLocation(program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
+	glUniformMatrix4fv(glGetUniformLocation(
+		program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 
 	// You need to add normal matrix and model view matrix
 

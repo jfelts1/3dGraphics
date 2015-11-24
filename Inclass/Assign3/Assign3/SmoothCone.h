@@ -14,6 +14,7 @@
 #include <array>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
@@ -25,8 +26,10 @@
 
 #define NumConePoints  18
 #define NumTriangles   18
-#define NumIndices     3*NumTriangles
-typedef std::array<GLuint,3> faceIndices;
+#define NumPointsPerTriangle 3
+#define NumIndices NumPointsPerTriangle*NumTriangles
+typedef std::array<GLuint,NumPointsPerTriangle> triangleIndices;
+static_assert(NumPointsPerTriangle == 3, "Triangles must have 3 points.");
 
 GLuint  cone_vao;
 GLuint  cone_vbo;
@@ -48,7 +51,6 @@ bool show_line = false;
 std::array<GLuint,NumIndices> indices;
 std::array<glm::vec4, NumConePoints + 1> points;
 std::array<glm::vec3, NumConePoints + 1> normals;
-std::array<faceIndices, NumTriangles> faces;
 
 static const double kPI = 3.1415926535897932384626433832795;
 GLuint index = 0;
@@ -60,10 +62,13 @@ void display(void);
 void Reshape(int width, int height);
 void initializeCone();
 void updateVertexNormals();
-glm::vec3 computeNormal(const std::vector<glm::vec3> normalsToAvg);
+
+glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) noexcept;
+std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind) noexcept;
+void printIndices() noexcept;
 
 template<class InputIt,class T>
-bool contains(InputIt first,InputIt last, const T& value)
+bool contains(InputIt first,InputIt last, const T& value) noexcept
 {
 	auto res = std::find(first, last, value);
 	if(res != last)
