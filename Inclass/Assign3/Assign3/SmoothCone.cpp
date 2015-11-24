@@ -44,65 +44,56 @@ vector<vec3> getAdjacentTriangleNormals(const size_t ind) noexcept
 
 void printIndices() noexcept
 {
-	for (size_t i = 0;i < indices.size();i+=3)
+    for (size_t i = 0;i < indices.size();i+=NumPointsPerTriangle)
 	{
 		printf("i1:%i, i2:%i, i3:%i\n", indices[i], indices[i + 1], indices[i + 2]);
 	}
 }
 
-void initializeCone() {
+void Display(void)
+{
+    // Clear
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//top point of cone
-	points[index][0] = 0.0;
-	points[index][1] = 1.0;
-	points[index][2] = 0.0;
-	points[index][3] = 1.0;
+    // Choose whether to draw in wireframe mode or not
 
-	normals[index][0] = 0.0;
-	normals[index][1] = 0.0;
-	normals[index][2] = 0.0;
+    if (show_line)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
-	index++;
+    vec4 lightpos = view*vec4(0.0f, 0.0f, 2.0f, 1.0f);
+    glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&lightpos));
 
-	float theta;
-	size_t tIndices = 0;
 
-	for (size_t i = 0; i < NumConePoints; ++i, index++)
-	{
-		theta = static_cast<float>(i*20.0f*kPI / 180.0f);
+    // Setup matrices
 
-		points[index][0] = cos(theta);
-		points[index][1] = -1.0;
-		points[index][2] = -sin(theta);
-		points[index][3] = 1.0;
+    mat4 model = translate(mat4(1.0f), vec3(0.0f, 0.0f, -1.0f));
+    projection = perspective(70.0f, aspect, 0.3f, 100.0f);
+    mat4 mvp = projection*view*model;
+    normalMat = mat3(modelViewMat);
 
-		normals[index][0] = 0.0;
-		normals[index][1] = 0.0;
-		normals[index][2] = 0.0;
 
-		if (i <= (NumConePoints - 2))
-		{
-			indices[tIndices] = 0u;
-			tIndices++;
-			indices[tIndices] = index;
-			tIndices++;
-			indices[tIndices] = index + 1;
-			tIndices++;
-		}
-		//last triangle
-		else
-		{
-			indices[tIndices] = 0u;
-			tIndices++;
-			indices[tIndices] = index;
-			tIndices++;
-			indices[tIndices] = 1u;
-			tIndices++;
-		}
-	}
-	printIndices();
-	updateVertexNormals();
+    glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
+    glUniformMatrix4fv(glGetUniformLocation(
+        program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 
+    // You need to add normal matrix and model view matrix
+    glUniformMatrix4fv(glGetUniformLocation(
+                           program, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalMat[0]));
+    glUniformMatrix4fv(glGetUniformLocation(
+                           program, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&modelViewMat[0]));
+
+    glBindVertexArray(cone_vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ebo);
+
+
+    glDrawElements(GL_TRIANGLES, NumIndices, GL_UNSIGNED_INT, nullptr);
+    glutSwapBuffers();
 }
 
 void Initialize(void){
@@ -131,13 +122,13 @@ void Initialize(void){
 
 	// attribute indices
 
-	position_loc = static_cast<GLuint>(glGetAttribLocation(program, "VertexPosition"));
-	glVertexAttribPointer(position_loc, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(position_loc);
+    vertexPosition = static_cast<GLuint>(glGetAttribLocation(program, "VertexPosition"));
+    glVertexAttribPointer(vertexPosition, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(vertexPosition);
 
-	normal_loc = static_cast<GLuint>(glGetAttribLocation(program, "VertexNormal"));
-	glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(points)));
-	glEnableVertexAttribArray(normal_loc);
+    vertexNormal = static_cast<GLuint>(glGetAttribLocation(program, "VertexNormal"));
+    glVertexAttribPointer(vertexNormal, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid *>(sizeof(points)));
+    glEnableVertexAttribArray(vertexNormal);
 	
 	view = lookAt(vec3(0.0f, 0.0f, 5.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	
@@ -173,47 +164,6 @@ void Initialize(void){
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
-}
-
-void Display(void)
-{
-	// Clear
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Choose whether to draw in wireframe mode or not
-
-	if (show_line)
-	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	}
-	else
-	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	}
-
-	vec4 lightpos = view*vec4(0.0f, 0.0f, 2.0f, 1.0f);
-	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&lightpos));
-
-	
-	// Setup matrices
-
-	mat4 model = translate(mat4(1.0f), vec3(0.0f, 0.0f, -1.0f));
-	projection = perspective(70.0f, aspect, 0.3f, 100.0f);
-	mat4 mvp = projection*view*model;
-
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
-	glUniformMatrix4fv(glGetUniformLocation(
-		program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
-
-	// You need to add normal matrix and model view matrix
-
-	glBindVertexArray(cone_vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ebo);
-
-
-	glDrawElements(GL_TRIANGLES, NumIndices, GL_UNSIGNED_INT, nullptr);
-	glutSwapBuffers();
 }
 
 void Reshape(int width, int height)
@@ -262,6 +212,61 @@ int main(int argc, char** argv){
 	glutReshapeFunc(Reshape);
 	glutMainLoop();
 	return 0;
+}
+
+void initializeCone() {
+
+    //top point of cone
+    points[index][0] = 0.0;
+    points[index][1] = 1.0;
+    points[index][2] = 0.0;
+    points[index][3] = 1.0;
+
+    normals[index][0] = 0.0;
+    normals[index][1] = 0.0;
+    normals[index][2] = 0.0;
+
+    index++;
+
+    float theta;
+    size_t tIndices = 0;
+
+    for (size_t i = 0; i < NumConePoints; ++i, index++)
+    {
+        theta = static_cast<float>(i*20.0f*kPI / 180.0f);
+
+        points[index][0] = cos(theta);
+        points[index][1] = -1.0;
+        points[index][2] = -sin(theta);
+        points[index][3] = 1.0;
+
+        normals[index][0] = 0.0;
+        normals[index][1] = 0.0;
+        normals[index][2] = 0.0;
+
+        if (i <= (NumConePoints - 2))
+        {
+            indices[tIndices] = 0u;
+            tIndices++;
+            indices[tIndices] = index;
+            tIndices++;
+            indices[tIndices] = index + 1;
+            tIndices++;
+        }
+        //last triangle
+        else
+        {
+            indices[tIndices] = 0u;
+            tIndices++;
+            indices[tIndices] = index;
+            tIndices++;
+            indices[tIndices] = 1u;
+            tIndices++;
+        }
+    }
+    printIndices();
+    updateVertexNormals();
+
 }
 
 static const GLchar* ReadFile(const char* filename)

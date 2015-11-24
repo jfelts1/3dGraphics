@@ -35,13 +35,15 @@ GLuint  cone_vao;
 GLuint  cone_vbo;
 GLuint  cone_ebo;
 
-GLuint position_loc;
-GLuint normal_loc;
+GLuint vertexPosition;
+GLuint vertexNormal;
 GLuint light_loc;
 GLuint material_loc;
 
 glm::mat4 view;
 glm::mat4 projection;
+glm::mat3 normalMat;
+glm::mat4 modelViewMat;
 
 GLuint program;
 
