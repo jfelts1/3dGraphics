@@ -30,11 +30,10 @@ uniform mat4 ProjectionMatrix;
 uniform mat4 MVP;
 
 
-
 void main()
 {
-    vec3 norm;
-    vec4 position;
+    vec3 norm = normalize(NormalMatrix*VertexNormal);
+    vec4 position = ModelViewMatrix*vec4(VertexPosition,1.0);
 
     // Get the position and normal in eye space
         
@@ -43,6 +42,8 @@ void main()
    // Calculate diffuse and specular reflection and add to the light intensity
         
     LightIntensity =  ambient;
+    fN = VertexNormal;
+    fE = VertexPosition;
     fL = Light.Position.xyz-VertexPosition;
 
 

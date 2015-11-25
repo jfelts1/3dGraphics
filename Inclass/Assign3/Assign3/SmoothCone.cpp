@@ -22,7 +22,7 @@ vec3 computeVertexNormal(const vector<vec3> normalsToAvg) noexcept
 	{
 		ret += norm;
 	}
-	ret /= normalize(ret);
+    ret /= normalize(ret);
 	return ret;
 }
 
@@ -75,6 +75,7 @@ void Display(void)
     mat4 model = translate(mat4(1.0f), vec3(0.0f, 0.0f, -1.0f));
     projection = perspective(70.0f, aspect, 0.3f, 100.0f);
     mat4 mvp = projection*view*model;
+    modelViewMat = model*view;
     normalMat = mat3(modelViewMat);
 
 
