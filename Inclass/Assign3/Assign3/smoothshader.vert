@@ -4,9 +4,6 @@ layout (location = 0) in vec3 VertexPosition;
 layout (location = 1) in vec3 VertexNormal;
 
 out vec3 LightIntensity;
-out vec3 fN;
-out vec3 fE;
-out vec3 fL;
 
 struct LightInfo {
   vec4 Position; // Light position in eye coords.
@@ -35,16 +32,20 @@ void main()
     vec3 norm = normalize(NormalMatrix*VertexNormal);
     vec4 position = ModelViewMatrix*vec4(VertexPosition,1.0);
 
+
     // Get the position and normal in eye space
         
     vec3 ambient = Light.La * Material.Ka;
+    vec3 viewDirection = -VertexPosition;
 
    // Calculate diffuse and specular reflection and add to the light intensity
         
     LightIntensity =  ambient;
-    fN = VertexNormal;
-    fE = VertexPosition;
-    fL = Light.Position.xyz-VertexPosition;
+    vec3 diffuseReflect = Material.Kd*LightIntensity*dot(VertexNormal,vec3(Light.Position));
+    vec3 H = normalize(viewDirection+vec3(Light.Position));
+    float angle = acos(dot(VertexNormal,H)/(length(VertexNormal)*length(H)));
+    vec3 specularReflect = Material.Ks*pow(cos(angle),Material.Shininess);
+    LightIntensity = ambient + diffuseReflect + specularReflect;
 
 
     gl_Position = MVP * vec4(VertexPosition,1.0);
