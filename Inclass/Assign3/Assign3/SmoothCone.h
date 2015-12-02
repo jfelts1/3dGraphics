@@ -28,7 +28,6 @@
 #define NumTriangles   18
 #define NumPointsPerTriangle 3
 #define NumIndices NumPointsPerTriangle*NumTriangles
-typedef std::array<GLuint,NumPointsPerTriangle> triangleIndices;
 static_assert(NumPointsPerTriangle == 3, "Triangles must have 3 points.");
 
 GLuint  cone_vao;
@@ -65,12 +64,12 @@ void Reshape(int width, int height);
 void initializeCone();
 void updateVertexNormals();
 
-glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) noexcept;
-std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind) noexcept;
-void printIndices() noexcept;
+glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg);
+std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind);
+void printIndices();
 
 template<class InputIt,class T>
-bool contains(InputIt first,InputIt last, const T& value) noexcept
+bool contains(InputIt first,InputIt last, const T& value)
 {
 	auto res = std::find(first, last, value);
 	if(res != last)
