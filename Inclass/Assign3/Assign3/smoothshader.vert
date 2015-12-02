@@ -29,23 +29,32 @@ uniform mat4 MVP;
 
 void main()
 {
-    vec3 norm = normalize(NormalMatrix*VertexNormal);
-    vec4 position = ModelViewMatrix*vec4(VertexPosition,1.0);
-
 
     // Get the position and normal in eye space
+    vec3 norm = normalize(NormalMatrix*VertexNormal);
+    vec4 position = ModelViewMatrix*vec4(VertexPosition,1.0);
         
     vec3 ambient = Light.La * Material.Ka;
-    vec3 viewDirection = -VertexPosition;
+    vec4 viewDirection = normalize(-position);
+    vec4 lightDirection = normalize(Light.Position-position);
 
    // Calculate diffuse and specular reflection and add to the light intensity
-        
-    LightIntensity =  ambient;
-    vec3 diffuseReflect = Material.Kd*LightIntensity*dot(VertexNormal,vec3(Light.Position));
-    vec3 H = normalize(viewDirection+vec3(Light.Position));
-    float angle = acos(dot(VertexNormal,H)/(length(VertexNormal)*length(H)));
-    vec3 specularReflect = Material.Ks*pow(cos(angle),Material.Shininess);
-    LightIntensity = ambient + diffuseReflect + specularReflect;
+
+    vec3 diffuseReflect = Material.Kd*Light.Ld*dot(norm,vec3(lightDirection));
+    vec3 specularReflect;
+
+    if(diffuseReflect != vec3(0.0))
+    {
+        vec3 H = vec3((lightDirection)/normalize(lightDirection));
+        //float angle = acos(dot(norm,H)/(length(norm)*length(H)));
+        specularReflect = Material.Ks*Light.Ls*pow(max(dot(norm,H),0.0),Material.Shininess);
+    }
+    else
+    {
+        specularReflect = vec3(0.0);
+    }
+
+    LightIntensity = ambient + diffuseReflect/* + specularReflect*/;
 
 
     gl_Position = MVP * vec4(VertexPosition,1.0);

@@ -9,21 +9,21 @@ void updateVertexNormals()
 {
 	for (size_t i = 0;i < points.size();i++)
 	{
-		vector<vec3> normalsToAvg = getAdjacentTriangleNormals(i);
-		normals[i] = computeVertexNormal(normalsToAvg);
-		normalsToAvg.clear();
+        vector<vec3> normalsVec = getAdjacentTriangleNormals(i);
+        normals[i] = computeVertexNormal(normalsVec);
+        printf("%li: %f,%f,%f\n",i,normals[i][0],normals[i][1],normals[i][2]);
+        normalsVec.clear();
 	}
 }
 
-vec3 computeVertexNormal(const vector<vec3> normalsToAvg) noexcept
+vec3 computeVertexNormal(const vector<vec3> normalsVec) noexcept
 {
 	vec3 ret;
-	for(auto& norm:normalsToAvg)
+    for(auto& norm:normalsVec)
 	{
 		ret += norm;
 	}
-    ret /= normalize(ret);
-	return ret;
+    return normalize(ret);
 }
 
 vector<vec3> getAdjacentTriangleNormals(const size_t ind) noexcept
@@ -36,7 +36,7 @@ vector<vec3> getAdjacentTriangleNormals(const size_t ind) noexcept
 		copy(beg, beg+NumPointsPerTriangle, tmp.begin());
 		if (contains(tmp.begin(), tmp.end(), ind))
 		{
-			ret.emplace_back(triangleNormal(vec3(points[tmp[0]]), vec3(points[tmp[1]]), vec3(points[tmp[2]])));
+            ret.emplace_back(triangleNormal(vec3(points[tmp[0]]), vec3(points[tmp[1]]), vec3(points[tmp[2]])));
 		}
 	}
 	return ret;
