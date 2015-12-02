@@ -111,7 +111,7 @@ void Initialize(void){
 	glBufferData(GL_ARRAY_BUFFER, sizeof(points) + sizeof(normals), nullptr, GL_STATIC_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(points), points.data());
 	offset += sizeof(points);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(normals), normals.data());
+    glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(normals), normals.data());
 
 	glGenBuffers(1, &cone_ebo);
 
@@ -155,7 +155,7 @@ void Initialize(void){
 	glUniform3fv(glGetUniformLocation(program, "Light.Ld"), 1, reinterpret_cast<GLfloat*>(&light_diffuse));
 	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, reinterpret_cast<GLfloat*>(&material_specular));
 	glUniform3fv(glGetUniformLocation(program, "Light.Ls"), 1, reinterpret_cast<GLfloat*>(&light_specular));
-	glUniform3fv(glGetUniformLocation(program, "Material.Shininess"), 1, &material_shininess);
+    glUniform1f(glGetUniformLocation(program, "Material.Shininess"), material_shininess);
 
 	
 	projection = mat4(1.0f);
@@ -163,7 +163,7 @@ void Initialize(void){
 	
 	glEnable(GL_DEPTH_TEST);
 
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
 
 }
 
