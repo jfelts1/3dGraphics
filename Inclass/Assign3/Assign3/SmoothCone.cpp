@@ -119,7 +119,7 @@ void Initialize(void){
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(), GL_STATIC_DRAW);
 
 
-	program = initShaders("smoothshader.vert", "smoothshader.frag");
+    program = initShaders("jesssmoothshader.vert", "smoothshader.frag");
 
 	// attribute indices
 

@@ -32,7 +32,7 @@ void main()
 
     // Get the position and normal in eye space
     vec3 norm = normalize(NormalMatrix*VertexNormal);
-    vec4 position = normalize(ModelViewMatrix*vec4(VertexPosition,1.0));
+    vec4 position = ModelViewMatrix*vec4(VertexPosition,1.0);
         
     vec3 ambient = Light.La * Material.Ka;
     vec4 viewDirection = normalize(-position);
@@ -54,7 +54,7 @@ void main()
         specularReflect = vec3(0.0);
     }
 
-    LightIntensity = ambient + diffuseReflect + specularReflect;
+    LightIntensity = ambient + diffuseReflect/* + specularReflect*/;
 
 
     gl_Position = MVP * vec4(VertexPosition,1.0);
