@@ -46,7 +46,6 @@ void main()
     if(diffuseReflect != vec3(0.0))
     {
         vec3 H = vec3(normalize(lightDirection+viewDirection));
-        //float angle = acos(dot(norm,H)/(length(norm)*length(H)));
         specularReflect = Material.Ks*Light.Ls*pow(max(dot(norm,H),0.0),Material.Shininess);
     }
     else
@@ -55,7 +54,6 @@ void main()
     }
 
     LightIntensity = ambient + diffuseReflect/* + specularReflect*/;
-
 
     gl_Position = MVP * vec4(VertexPosition,1.0);
 }
