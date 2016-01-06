@@ -175,11 +175,15 @@ void update(int n)
 
 
 // ReSharper disable CppParameterNeverUsed
+#ifdef WIN32
 #pragma warning(push)
 #pragma warning(disable: 4100)
+#endif
 void keyboard(unsigned char key, int x, int y){
 	// ReSharper restore CppParameterNeverUsed
+#ifdef WIN32
 #pragma warning(pop)
+#endif
 	switch (key){
 	case 'q':case 'Q':
 		exit(EXIT_SUCCESS);
@@ -332,8 +336,11 @@ void glutMotion(int x, int y)
 	gLastMouseY = y;
 }
 /************************************************************************************************************************************************************/
-int main(int argc, char** argv){
-
+int main(int argc, char** argv)
+{
+	glewExperimental = GL_TRUE;
+    glutInitContextVersion(3,3);
+    
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
 	glutInitWindowSize(512, 512);
