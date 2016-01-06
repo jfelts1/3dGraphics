@@ -3,8 +3,6 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include <map>
-#include <set>
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
@@ -164,7 +162,8 @@ void Reshape(int width, int height)
 	g_aspect = float(width) / float(height);
 }
 
-void update(int n){
+void update(int n)
+{
 	
 		g_angle += 0.1f;
 		if (g_angle > static_cast<float>(TWOPI)) g_angle -= static_cast<float>(TWOPI);
