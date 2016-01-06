@@ -216,3 +216,5 @@ a.out
 
 #trace files
 *.trace
+
+*.opendb
