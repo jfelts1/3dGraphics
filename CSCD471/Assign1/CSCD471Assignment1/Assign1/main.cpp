@@ -57,6 +57,10 @@ void Initialize(void){
 	OBJLoader loader;
 
 	bool loadfile = loader.load("bunny.obj");
+	if (!loadfile)
+	{
+		exit(EXIT_FAILURE);
+	}
 	vertices = loader.getVertices();
 	normals = loader.getNormals();
 	indices = loader.getVertexIndices();
@@ -109,6 +113,7 @@ void Initialize(void){
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
+
 void Display(void)
 {
 	// Clear
@@ -165,11 +170,11 @@ void Reshape(int width, int height)
 void update(int n)
 {
 	
-		g_angle += 0.1f;
-		if (g_angle > static_cast<float>(TWOPI)) g_angle -= static_cast<float>(TWOPI);
+	g_angle += 0.1f;
+	if (g_angle > static_cast<float>(TWOPI)) g_angle -= static_cast<float>(TWOPI);
 
-	    glutPostRedisplay();
-	    glutTimerFunc(500, update, n);
+	glutPostRedisplay();
+	glutTimerFunc(500, update, n);
    
 }
 

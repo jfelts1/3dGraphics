@@ -6,16 +6,54 @@
 #include <string>         // std::string
 #include <cstddef>         // std::size_t
 #include "objloader.h"
+#include <GL/glew.h>
 
+using glm::vec3;
+using std::vector;
+using std::array;
+using std::advance;
+using std::copy;
+using std::cout;
+using std::endl;
 
-void OBJLoader:: computeNormals(std::vector<glm::vec3> const &vertices, std::vector<int> const &indices, std::vector<glm::vec3> &normals){
+void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const &indices, vector<vec3> &normals)
+{		
+	normals.resize(vertices.size(), vec3(0.0f, 0.0f, 0.0f));
 		
-	    normals.resize(vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
-		
-		// Compute per-vertex normals here!
-
+	// Compute per-vertex normals here!
+	for (size_t i = 0;i < vertices.size();i++)
+	{
+		vector<vec3> normalsVec = getAdjacentTriangleNormals(i);
+		normals[i] = computeVertexNormal(normalsVec);
+		//printf("%llu: %f,%f,%f\n",i,normals[i][0],normals[i][1],normals[i][2]);
+		normalsVec.clear();
+	}
 }
 
+vec3 OBJLoader::computeVertexNormal(const vector<vec3> normalsVec)
+{
+	vec3 ret;
+	for (auto& norm : normalsVec)
+	{
+		ret += norm;
+	}
+	return normalize(ret);
+}
+
+vector<vec3> OBJLoader::getAdjacentTriangleNormals(const size_t ind)
+{
+	vector<vec3> ret;
+	for (auto beg = vIndices.begin(), end = vIndices.end();beg != end;advance(beg, NumPointsPerTriangle))
+	{
+		//if (contains(beg, beg + NumPointsPerTriangle, ind))
+		//considerably faster to do it this way
+		if((*beg==ind)||(*(beg+1)==ind)||(*(beg+2)==ind))
+		{
+			ret.emplace_back(triangleNormal(vec3(mVertices[*beg]), vec3(mVertices[*(beg+1)]), vec3(mVertices[*(beg+2)])));
+		}
+	}
+	return ret;
+}
 
 OBJLoader::OBJLoader() :
 mVertices(0),
@@ -42,23 +80,25 @@ bool OBJLoader::load(const char *filename)
 	
 	// Extract vertices and indices
 	std::string line;
-	glm::vec3 vertex;
+	vec3 vertex;
 	glm::vec2 uv;
 	while (!OBJFile.eof()) {
 		getline(OBJFile, line);
 		if ((line.find('#') == -1) && (line.find('m') == -1)){
 			if (line.find('v') != -1) {
 
-				if ((line.find('t') == -1) && (line.find('n') == -1)){
+				if ((line.find('t') == -1) && (line.find('n') == -1))
+				{
 					std::istringstream vertexLine(line.substr(2));
 					vertexLine >> vertex.x;
 					vertexLine >> vertex.y;
 					vertexLine >> vertex.z;
-				    mVertices.push_back(vertex);
+				    mVertices.emplace_back(vertex);
 				}
 			}
 
-			else if (line.find("f ") != -1) {
+			else if (line.find("f ") != -1) 
+			{				
 				std::istringstream faceLine(line);
 				std::string val1;
 				faceLine >> val1;
@@ -66,8 +106,8 @@ bool OBJLoader::load(const char *filename)
 				for (int n = 0; n < 3; n++){
 					faceLine >> val;
 					
-					vIndices.push_back(val- 1);
-					nIndices.push_back(val - 1);
+					vIndices.emplace_back(val- 1);
+					nIndices.emplace_back(val - 1);
 
 				}
 			}
@@ -86,23 +126,23 @@ bool OBJLoader::load(const char *filename)
 	return true;
 }
 
-std::vector<glm::vec3> const &OBJLoader::getVertices() const
+vector<vec3> const &OBJLoader::getVertices() const
 {
 	return mVertices;
 }
 
-std::vector<glm::vec3> const &OBJLoader::getNormals() const
+vector<vec3> const &OBJLoader::getNormals() const
 {
 	return mNormals;
 }
 
 
-std::vector<int> const &OBJLoader::getVertexIndices() const
+vector<int> const &OBJLoader::getVertexIndices() const
 {
 	return vIndices;
 }
 
-std::vector<int> const &OBJLoader::getNormalIndices() const
+vector<int> const &OBJLoader::getNormalIndices() const
 {
 	return nIndices;
 }
