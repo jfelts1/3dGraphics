@@ -129,17 +129,24 @@ void Display(void)
 
 	// implement spot direction
 	
+
 	mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
 	mat4 translated = translate(mat4(1.0f), vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
 	mat4 transformation_matrix = translated*gCameraRotation*scaled;
 	model *= transformation_matrix;
 	model_view = view*model;
-	mat3 normalmatrix;
+	mat3 normalmatrix = mat3(view);
+
+	vec3 spotDir = normalmatrix*vec3(-spotPos);
+
 	projection = perspective(70.0f, g_aspect, 0.3f, 100.0f); 
 	mat4 mvp = projection*model_view;
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+
+	glUniform3fv(glGetUniformLocation(program, "Spot.direction"),1, static_cast<GLfloat*>(&spotDir[0]));
 	glUniformMatrix4fv(glGetUniformLocation(program, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
 	glUniformMatrix3fv(glGetUniformLocation(program, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
 	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
@@ -150,21 +157,6 @@ void Display(void)
 	glBindVertexArray(0);
 
 	glutSwapBuffers();
-}
-
-
-
-void Reshape(int width, int height)
-{
-	width = glutGet(GLUT_WINDOW_WIDTH);
-	height = glutGet(GLUT_WINDOW_HEIGHT);
-
-	gViewportWidth = width;
-	gViewportHeight = height;
-	glViewport(0, 0, width, height);
-
-	
-	g_aspect = float(width) / float(height);
 }
 
 void update(int n)
@@ -186,23 +178,23 @@ void update(int n)
 #endif
 void keyboard(unsigned char key, int x, int y){
 	// ReSharper restore CppParameterNeverUsed
-#ifdef WIN32
-#pragma warning(pop)
-#endif
-	switch (key){
-	case 'q':case 'Q':
-		exit(EXIT_SUCCESS);
-		break;
+	switch (key)
+	{
+		case 'q':case 'Q':
+			exit(EXIT_SUCCESS);
+			break;
 	
-	case 'r':
-	case 'R':
-		makeIdentity();
-		break;
-
-}
+		case 'r':
+		case 'R':
+			makeIdentity();
+			break;
+	}
 
 	glutPostRedisplay();
 }
+#ifdef WIN32
+#pragma warning(pop)
+#endif
 
 /*********************************************************************************************/
 void makeIdentity(){
@@ -235,6 +227,21 @@ double projectToTrackball(double radius, double x, double y)
 	}
 
 	return z;
+}
+
+// ReSharper disable CppParameterValueIsReassigned
+void Reshape(int width, int height)
+// ReSharper restore CppParameterValueIsReassigned
+{
+	width = glutGet(GLUT_WINDOW_WIDTH);
+	height = glutGet(GLUT_WINDOW_HEIGHT);
+
+	gViewportWidth = width;
+	gViewportHeight = height;
+	glViewport(0, 0, width, height);
+
+	
+	g_aspect = float(width) / float(height);
 }
 
 /*******************************************************************************/

@@ -30,7 +30,7 @@ void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const 
 	}
 }
 
-vec3 OBJLoader::computeVertexNormal(const vector<vec3> normalsVec)
+vec3 OBJLoader::computeVertexNormal(const vector<vec3> normalsVec) const
 {
 	vec3 ret;
 	for (auto& norm : normalsVec)
@@ -61,12 +61,12 @@ mNormals(0),
 vIndices(0),
 nIndices()
 {
-	std::cout << "Called OBJFileReader constructor" << std::endl;
+	cout << "Called OBJFileReader constructor" << endl;
 }
 
 OBJLoader::~OBJLoader()
 {
-	std::cout << "Called OBJFileReader destructor" << std::endl;
+	cout << "Called OBJFileReader destructor" << endl;
 }
 
 bool OBJLoader::load(const char *filename)
@@ -74,14 +74,14 @@ bool OBJLoader::load(const char *filename)
 	// Open OBJ file
 	std::ifstream OBJFile(filename);
 	if (!OBJFile.is_open()) {
-		std::cerr << "Could not open " << filename << std::endl;
+		std::cerr << "Could not open " << filename << endl;
 		return false;
 	}
 	
 	// Extract vertices and indices
 	std::string line;
 	vec3 vertex;
-	glm::vec2 uv;
+	//glm::vec2 uv;
 	while (!OBJFile.eof()) {
 		getline(OBJFile, line);
 		if ((line.find('#') == -1) && (line.find('m') == -1)){

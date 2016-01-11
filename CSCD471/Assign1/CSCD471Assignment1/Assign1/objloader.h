@@ -39,7 +39,7 @@ private:
 	std::vector<int> nIndices;
 	//std::vector<std::array<int, NumPointsPerTriangle>> m_faceAdjancentices;
 
-	glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg);
+	glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) const;
 	std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind);
 
 };

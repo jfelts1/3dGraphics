@@ -22,7 +22,16 @@ layout( location = 0 ) out vec4 FragColor;
 
 void main() {
     vec3 ambient = Spot.intensity * Ka;
-
+    float spotCos = dot(Spot.direction,-Position);
+    float atten = 1.0;
+    if(spotCos<Spot.cutoff)
+    {
+        atten = 0.0;
+    }
+    else
+    {
+        atten *= pow(spotCos,Spot.exponent);
+    }
     FragColor = vec4(ambient, 1.0);
 }
 
