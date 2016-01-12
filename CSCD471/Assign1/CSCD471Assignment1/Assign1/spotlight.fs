@@ -41,18 +41,18 @@ void main()
     
     vec3 LightIntensity = diffuseReflect + specularReflect;
     
-    vec3 ambient = Spot.intensity * Ka + LightIntensity;
+    vec3 ambient = Spot.intensity * Ka;
     float spotCos = dot(Spot.direction,-Position);
     float atten = 1.0;
     
     if(spotCos<Spot.cutoff)
     {
-        FragColor = vec4(ambient, 1.0);
+        FragColor = vec4(ambient*LightIntensity, 1.0);
     }
     else
     {
-        atten = pow(spotCos,Spot.exponent);
-        FragColor = vec4(ambient*atten, 1.0);
+        atten *= pow(spotCos,Spot.exponent);
+        FragColor = vec4(ambient*atten*LightIntensity, 1.0);
     }
     
 }
