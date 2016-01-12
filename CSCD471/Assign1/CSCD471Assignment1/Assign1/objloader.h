@@ -37,7 +37,7 @@ private:
 	std::vector<glm::vec3> mNormals;
 	std::vector<int> vIndices;
 	std::vector<int> nIndices;
-	//std::vector<std::array<int, NumPointsPerTriangle>> m_faceAdjancentices;
+	std::vector<std::vector<glm::vec3>> m_faceAdjancentices;
 
 	glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) const;
 	std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind);

@@ -24,7 +24,7 @@ void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const 
 	// Compute per-vertex normals here!
 	for (size_t i = 0;i < vertices.size();i++)
 	{
-		vector<vec3> normalsVec = getAdjacentTriangleNormals(i);
+		vector<vec3> normalsVec = getAdjacentTriangleNormals(i-1);
 		normals[i] = computeVertexNormal(normalsVec);
 		//printf("%llu: %f,%f,%f\n",i,normals[i][0],normals[i][1],normals[i][2]);
 		normalsVec.clear();
@@ -48,9 +48,9 @@ vector<vec3> OBJLoader::getAdjacentTriangleNormals(const size_t ind)
 	{
 		//if (contains(beg, beg + NumPointsPerTriangle, ind))
 		//considerably faster to do it this way
-		if((*(beg)-1==ind)||(*(beg+1)-1==ind)||(*(beg+2)-1==ind))
+		if((beg[0]==ind)||(beg[1]==ind)||(beg[2]==ind))
 		{
-			ret.emplace_back(triangleNormal(vec3(mVertices[*(beg)-1]), vec3(mVertices[*(beg+1)-1]), vec3(mVertices[*(beg+2)-1])));
+			ret.emplace_back(triangleNormal(vec3(mVertices[beg[0]]), vec3(mVertices[beg[1]]), vec3(mVertices[beg[2]])));
 		}
 	}
 	return ret;
