@@ -7,6 +7,7 @@
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
 #define TWOPI 2*3.1415926535897932384626433832795
+#define LIGHT_CUTOFF 15.0f
 
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
@@ -99,8 +100,6 @@ void Initialize(void){
 	vec3 material_ambient(0.9, 0.5, 0.3);
 	vec3 material_diffuse(0.9, 0.5, 0.3);
 	vec3 material_specular(0.8, 0.8, 0.8);
-
-	
 	
 	glUniform3fv(glGetUniformLocation(program, "Spot.intensity"), 1, reinterpret_cast<GLfloat*>(&lightintensity));
 	glUniform3fv(glGetUniformLocation(program, "Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
@@ -108,8 +107,7 @@ void Initialize(void){
 	glUniform3fv(glGetUniformLocation(program, "Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
 	glUniform1f(glGetUniformLocation(program, "Shininess"), 180.0f);
 	glUniform1f(glGetUniformLocation(program, "Spot.exponent"), 30.0f);
-	glUniform1f(glGetUniformLocation(program, "Spot.cutoff"), 15.0f);
-	
+	glUniform1f(glGetUniformLocation(program, "Spot.cutoff"), LIGHT_CUTOFF);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
@@ -127,16 +125,14 @@ void Display(void)
 	vec4 spotPos = view*lightPos;
 	glUniform4fv(glGetUniformLocation(program, "Spot.position"), 1, reinterpret_cast<GLfloat*>(&spotPos));
 
-	// implement spot direction
-	
-
 	mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
 	mat4 translated = translate(mat4(1.0f), vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
 	mat4 transformation_matrix = translated*gCameraRotation*scaled;
 	model *= transformation_matrix;
 	model_view = view*model;
 	mat3 normalmatrix = mat3(view);
-
+	
+	// implement spot direction
 	vec3 spotDir = normalmatrix*vec3(-spotPos);
 
 	projection = perspective(70.0f, g_aspect, 0.3f, 100.0f); 

@@ -15,6 +15,7 @@ using std::advance;
 using std::copy;
 using std::cout;
 using std::endl;
+using std::string;
 
 void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const &indices, vector<vec3> &normals)
 {		
@@ -47,9 +48,9 @@ vector<vec3> OBJLoader::getAdjacentTriangleNormals(const size_t ind)
 	{
 		//if (contains(beg, beg + NumPointsPerTriangle, ind))
 		//considerably faster to do it this way
-		if((*beg==ind)||(*(beg+1)==ind)||(*(beg+2)==ind))
+		if((*(beg)-1==ind)||(*(beg+1)-1==ind)||(*(beg+2)-1==ind))
 		{
-			ret.emplace_back(triangleNormal(vec3(mVertices[*beg]), vec3(mVertices[*(beg+1)]), vec3(mVertices[*(beg+2)])));
+			ret.emplace_back(triangleNormal(vec3(mVertices[*(beg)-1]), vec3(mVertices[*(beg+1)-1]), vec3(mVertices[*(beg+2)-1])));
 		}
 	}
 	return ret;
@@ -84,10 +85,10 @@ bool OBJLoader::load(const char *filename)
 	//glm::vec2 uv;
 	while (!OBJFile.eof()) {
 		getline(OBJFile, line);
-		if ((line.find('#') == -1) && (line.find('m') == -1)){
-			if (line.find('v') != -1) {
+		if ((line.find('#') == string::npos) && (line.find('m') == string::npos)){
+			if (line.find('v') != string::npos) {
 
-				if ((line.find('t') == -1) && (line.find('n') == -1))
+				if ((line.find('t') == string::npos) && (line.find('n') == string::npos))
 				{
 					std::istringstream vertexLine(line.substr(2));
 					vertexLine >> vertex.x;
@@ -97,7 +98,7 @@ bool OBJLoader::load(const char *filename)
 				}
 			}
 
-			else if (line.find("f ") != -1) 
+			else if (line.find("f ") != string::npos) 
 			{				
 				std::istringstream faceLine(line);
 				std::string val1;

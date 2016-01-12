@@ -1,4 +1,4 @@
-#version 330
+#version 430
 
 layout (location = 0) in vec3 VertexPosition;
 layout (location = 1) in vec3 VertexNormal;
@@ -15,7 +15,7 @@ uniform mat4 MVP;
 
 void main()
 {
-  
+    
     Normal = normalize( NormalMatrix * VertexNormal);
     Position = vec3( ModelViewMatrix * vec4(VertexPosition,1.0) );
 
