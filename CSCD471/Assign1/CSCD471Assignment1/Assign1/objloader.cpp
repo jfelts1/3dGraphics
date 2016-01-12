@@ -9,6 +9,8 @@
 #include <GL/glew.h>
 
 using glm::vec3;
+using glm::normalize;
+using glm::triangleNormal;
 using std::vector;
 using std::array;
 using std::advance;
