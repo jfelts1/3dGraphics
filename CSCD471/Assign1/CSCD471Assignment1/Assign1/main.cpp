@@ -7,7 +7,7 @@
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
 #define TWOPI 2*3.1415926535897932384626433832795
-#define LIGHT_CUTOFF 15.0f
+#define LIGHT_CUTOFF radians(15.0f)
 
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective

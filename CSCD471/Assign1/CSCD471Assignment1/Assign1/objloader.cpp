@@ -26,7 +26,7 @@ void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const 
 	// Compute per-vertex normals here!
 	for (size_t i = 0;i < vertices.size();i++)
 	{
-		vector<vec3> normalsVec = getAdjacentTriangleNormals(i-1);
+		vector<vec3> normalsVec = getAdjacentTriangleNormals(i);
 		normals[i] = computeVertexNormal(normalsVec);
 		//printf("%llu: %f,%f,%f\n",i,normals[i][0],normals[i][1],normals[i][2]);
 		normalsVec.clear();

@@ -42,7 +42,7 @@ void main()
     vec3 LightIntensity = diffuseReflect + specularReflect;
     
     vec3 ambient = Spot.intensity * Ka+LightIntensity;
-    float spotCos = dot(Spot.direction,-Position);
+    float spotCos = dot(Spot.direction,vec3(Spot.position)-Position);
     float atten = 1.0;
     
     if(spotCos<Spot.cutoff)
