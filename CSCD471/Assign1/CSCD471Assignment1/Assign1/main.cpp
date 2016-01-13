@@ -7,8 +7,8 @@
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
 #define TWOPI 2*3.1415926535897932384626433832795
+#define LIGHT_EXPONENT 30.0f
 #define LIGHT_CUTOFF radians(15.0f)
-
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
@@ -106,7 +106,7 @@ void Initialize(void){
 	glUniform3fv(glGetUniformLocation(program, "Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
 	glUniform3fv(glGetUniformLocation(program, "Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
 	glUniform1f(glGetUniformLocation(program, "Shininess"), 180.0f);
-	glUniform1f(glGetUniformLocation(program, "Spot.exponent"), 30.0f);
+	glUniform1f(glGetUniformLocation(program, "Spot.exponent"), LIGHT_EXPONENT);
 	glUniform1f(glGetUniformLocation(program, "Spot.cutoff"), LIGHT_CUTOFF);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);

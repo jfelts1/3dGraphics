@@ -23,15 +23,15 @@ layout( location = 0 ) out vec4 FragColor;
 void main() 
 {
 
-    vec4 viewDirection = normalize(vec4(-Position,0.0));
-    vec4 lightDirection = normalize(Spot.position-vec4(Position,0.0));
+    vec3 viewDirection = normalize(-Position);
+    vec3 lightDirection = normalize(vec3(Spot.position)-Position);
     
-    vec3 diffuseReflect = Kd*Spot.intensity*max(dot(Normal,vec3(lightDirection)),0.0);
+    vec3 diffuseReflect = Kd*Spot.intensity*max(dot(Normal,lightDirection),0.0);
     vec3 specularReflect;
 
     if(diffuseReflect != vec3(0.0))
     {
-        vec3 H = vec3(normalize(lightDirection+viewDirection));
+        vec3 H = normalize(lightDirection+viewDirection);
         specularReflect = Ks*Spot.intensity*pow(max(dot(Normal,H),0.0),Shininess);
     }
     else
@@ -42,7 +42,7 @@ void main()
     vec3 LightIntensity = diffuseReflect + specularReflect;
     
     vec3 ambient = Spot.intensity * Ka+LightIntensity;
-    float spotCos = dot(Spot.direction,vec3(Spot.position)-Position);
+    float spotCos = acos(dot(normalize(Spot.direction),-lightDirection));
     float atten = 1.0;
     
     if(spotCos<Spot.cutoff)
