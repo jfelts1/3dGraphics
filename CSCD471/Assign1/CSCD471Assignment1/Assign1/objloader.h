@@ -58,7 +58,7 @@ private:
 	std::tuple<float,float,float> getMaxXYZ()const;
 	std::tuple<float,float,float> getMinXYZ()const;
 	
-	XYZ getLargestAxis(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const;
+	float getLargestAxisValue(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const;
 	glm::vec3 getOffsetFromCenter(const std::tuple<float,float,float> maxXYZ, const std::tuple<float,float,float> minXYZ)const;
 	void centerObject(const glm::vec3 offset);
 };

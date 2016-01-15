@@ -72,22 +72,11 @@ void OBJLoader::unitize()
 	printf("max:\nx: %f, y: %f, z: %f\n",get<0>(maxPos),get<1>(maxPos),get<2>(maxPos));
 	printf("min:\nx: %f, y: %f, z: %f\n",get<0>(minPos),get<1>(minPos),get<2>(minPos));
 	
-	XYZ largestAxis = getLargestAxis(maxPos,minPos);
+	float largestAxis = getLargestAxisValue(maxPos,minPos);
 	vec3 offsetFromCenter = getOffsetFromCenter(maxPos,minPos);
 	centerObject(offsetFromCenter);
-	double scale_factor;
-	if(largestAxis == XYZ::X)
-	{
-		scale_factor = 2.0/(get<0>(maxPos)-get<0>(minPos));
-	}
-	else if(largestAxis == XYZ::Y)
-	{
-		scale_factor = 2.0/(get<1>(maxPos)-get<1>(minPos));
-	}
-	else
-	{
-		scale_factor = 2.0/(get<2>(maxPos)-get<2>(minPos));
-	}
+	double scale_factor = 2.0/largestAxis;
+	printf("scale_factor: %f\n",scale_factor);
 	scale(scale_factor);
 }
 
@@ -107,9 +96,9 @@ void OBJLoader::scale(const double scale_factor)
 	}
 }
 
-XYZ OBJLoader::getLargestAxis(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const
+float OBJLoader::getLargestAxisValue(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const
 {
-	XYZ ret;
+	XYZ axis;
 	float x = get<0>(maxXYZ)-get<0>(minXYZ);
 	float y = get<1>(maxXYZ)-get<1>(minXYZ);
 	float z = get<2>(maxXYZ)-get<2>(minXYZ);
@@ -118,18 +107,18 @@ XYZ OBJLoader::getLargestAxis(const std::tuple<float,float,float> maxXYZ,const s
 	auto dist = distance(tmp.begin(),result);
 	if(dist == 0)
 	{
-		ret = XYZ::X;
+		axis = XYZ::X;
 	}
 	else if(dist == 1)
 	{
-		ret = XYZ::Y;
+		axis = XYZ::Y;
 	}
 	else
 	{
-		ret = XYZ::Z;
+		axis = XYZ::Z;
 	}
-	cout<<"Largest axis is "<<ret<<" with value of "<<*result<<"."<<endl;
-	return ret;
+	cout<<"Largest axis is "<<axis<<" with value of "<<*result<<"."<<endl;
+	return *result;
 }
 
 tuple<float,float,float> OBJLoader::getMaxXYZ()const
@@ -184,9 +173,9 @@ tuple<float,float,float> OBJLoader::getMinXYZ()const
 
 vec3 OBJLoader::getOffsetFromCenter(const std::tuple<float,float,float> maxXYZ, const std::tuple<float,float,float> minXYZ)const
 {
-	float x = get<0>(maxXYZ)+get<0>(minXYZ);
-	float y = get<1>(maxXYZ)+get<1>(minXYZ);
-	float z = get<2>(maxXYZ)+get<2>(minXYZ);
+	float x = (get<0>(maxXYZ)+get<0>(minXYZ))/2.0;
+	float y = (get<1>(maxXYZ)+get<1>(minXYZ))/2.0;
+	float z = (get<2>(maxXYZ)+get<2>(minXYZ))/2.0;
 	return vec3(x,y,z);
 }
 
