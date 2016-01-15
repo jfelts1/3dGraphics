@@ -40,11 +40,11 @@ public:
 	std::vector<glm::vec3> const &getNormals() const;
 	std::vector<int> const &getVertexIndices() const;
 	std::vector<int> const &getNormalIndices() const;
-	void unitize();
 
 	void computeNormals(std::vector<glm::vec3> const &vertices,
 		std::vector<int> const &indices,
 		std::vector<glm::vec3> &normals);
+	void scale(const double scale_factor);
 private:
 	std::vector<glm::vec3> mVertices;
 	std::vector<glm::vec3> mNormals;
@@ -54,10 +54,13 @@ private:
 
 	glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) const;
 	std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind);
+	void unitize();
 	std::tuple<float,float,float> getMaxXYZ()const;
 	std::tuple<float,float,float> getMinXYZ()const;
 	
-	XYZ getLargestAxis(std::tuple<float,float,float> maxXYZ, std::tuple<float,float,float> minXYZ)const;
+	XYZ getLargestAxis(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const;
+	glm::vec3 getOffsetFromCenter(const std::tuple<float,float,float> maxXYZ, const std::tuple<float,float,float> minXYZ)const;
+	void centerObject(const glm::vec3 offset);
 };
 
 #endif

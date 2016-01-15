@@ -9,6 +9,7 @@
 #define TWOPI 2*3.1415926535897932384626433832795
 #define LIGHT_EXPONENT 30.0f
 #define LIGHT_CUTOFF radians(15.0f)
+#define SCALE 7.0
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
@@ -62,6 +63,7 @@ void Initialize(void){
 	{
 		exit(EXIT_FAILURE);
 	}
+	loader.scale(SCALE);
 	vertices = loader.getVertices();
 	normals = loader.getNormals();
 	indices = loader.getVertexIndices();
@@ -71,7 +73,7 @@ void Initialize(void){
 	
 	// Use our shader
 	glUseProgram(program);
-	view = lookAt(vec3(0.0f, 0.0f, 2.5f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	view = lookAt(vec3(0.0f, 0.0f, 30.5f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 
 	// Initialize shader lighting parameters

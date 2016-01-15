@@ -68,14 +68,46 @@ void OBJLoader::unitize()
 {
 	auto maxPos = getMaxXYZ();
 	auto minPos = getMinXYZ();
+	
 	printf("max:\nx: %f, y: %f, z: %f\n",get<0>(maxPos),get<1>(maxPos),get<2>(maxPos));
 	printf("min:\nx: %f, y: %f, z: %f\n",get<0>(minPos),get<1>(minPos),get<2>(minPos));
+	
 	XYZ largestAxis = getLargestAxis(maxPos,minPos);
-	
-	
+	vec3 offsetFromCenter = getOffsetFromCenter(maxPos,minPos);
+	centerObject(offsetFromCenter);
+	double scale_factor;
+	if(largestAxis == XYZ::X)
+	{
+		scale_factor = 2.0/(get<0>(maxPos)-get<0>(minPos));
+	}
+	else if(largestAxis == XYZ::Y)
+	{
+		scale_factor = 2.0/(get<1>(maxPos)-get<1>(minPos));
+	}
+	else
+	{
+		scale_factor = 2.0/(get<2>(maxPos)-get<2>(minPos));
+	}
+	scale(scale_factor);
 }
 
-XYZ OBJLoader::getLargestAxis(std::tuple<float,float,float> maxXYZ, std::tuple<float,float,float> minXYZ)const
+void OBJLoader::centerObject(const glm::vec3 offset)
+{
+	for(auto& vec: mVertices)
+	{
+		vec-=offset;
+	}
+}
+
+void OBJLoader::scale(const double scale_factor)
+{
+	for(auto&vec:mVertices)
+	{
+		vec*=scale_factor;
+	}
+}
+
+XYZ OBJLoader::getLargestAxis(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const
 {
 	XYZ ret;
 	float x = get<0>(maxXYZ)-get<0>(minXYZ);
@@ -96,7 +128,7 @@ XYZ OBJLoader::getLargestAxis(std::tuple<float,float,float> maxXYZ, std::tuple<f
 	{
 		ret = XYZ::Z;
 	}
-	cout<<"Largest axis is "<<ret<<" with value of "<<result[0]<<"."<<endl;
+	cout<<"Largest axis is "<<ret<<" with value of "<<*result<<"."<<endl;
 	return ret;
 }
 
@@ -148,6 +180,14 @@ tuple<float,float,float> OBJLoader::getMinXYZ()const
 	}
 	
 	return make_tuple(x,y,z);
+}
+
+vec3 OBJLoader::getOffsetFromCenter(const std::tuple<float,float,float> maxXYZ, const std::tuple<float,float,float> minXYZ)const
+{
+	float x = get<0>(maxXYZ)+get<0>(minXYZ);
+	float y = get<1>(maxXYZ)+get<1>(minXYZ);
+	float z = get<2>(maxXYZ)+get<2>(minXYZ);
+	return vec3(x,y,z);
 }
 
 OBJLoader::OBJLoader() :
