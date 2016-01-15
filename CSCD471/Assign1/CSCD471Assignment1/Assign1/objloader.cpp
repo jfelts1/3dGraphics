@@ -5,8 +5,8 @@
 #include <cmath>
 #include <string>         // std::string
 #include <cstddef>         // std::size_t
-#include "objloader.h"
 #include <GL/glew.h>
+#include "objloader.h"
 
 using glm::vec3;
 using glm::normalize;
@@ -18,6 +18,12 @@ using std::copy;
 using std::cout;
 using std::endl;
 using std::string;
+using std::tuple;
+using std::numeric_limits;
+using std::get;
+using std::make_tuple;
+using std::distance;
+using std::max_element;
 
 void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const &indices, vector<vec3> &normals)
 {		
@@ -56,6 +62,92 @@ vector<vec3> OBJLoader::getAdjacentTriangleNormals(const size_t ind)
 		}
 	}
 	return ret;
+}
+
+void OBJLoader::unitize()
+{
+	auto maxPos = getMaxXYZ();
+	auto minPos = getMinXYZ();
+	printf("max:\nx: %f, y: %f, z: %f\n",get<0>(maxPos),get<1>(maxPos),get<2>(maxPos));
+	printf("min:\nx: %f, y: %f, z: %f\n",get<0>(minPos),get<1>(minPos),get<2>(minPos));
+	XYZ largestAxis = getLargestAxis(maxPos,minPos);
+	
+	
+}
+
+XYZ OBJLoader::getLargestAxis(std::tuple<float,float,float> maxXYZ, std::tuple<float,float,float> minXYZ)const
+{
+	XYZ ret;
+	float x = get<0>(maxXYZ)-get<0>(minXYZ);
+	float y = get<1>(maxXYZ)-get<1>(minXYZ);
+	float z = get<2>(maxXYZ)-get<2>(minXYZ);
+	array<float,3> tmp{x,y,z};
+	auto result = max_element(tmp.begin(),tmp.end());
+	auto dist = distance(tmp.begin(),result);
+	if(dist == 0)
+	{
+		ret = XYZ::X;
+	}
+	else if(dist == 1)
+	{
+		ret = XYZ::Y;
+	}
+	else
+	{
+		ret = XYZ::Z;
+	}
+	cout<<"Largest axis is "<<ret<<" with value of "<<result[0]<<"."<<endl;
+	return ret;
+}
+
+tuple<float,float,float> OBJLoader::getMaxXYZ()const
+{
+	float x = -numeric_limits<float>::infinity();
+	float y = -numeric_limits<float>::infinity();
+	float z = -numeric_limits<float>::infinity();
+	
+	for(auto& vec:mVertices)
+	{
+		if(vec[0] > x)
+		{
+			x = vec[0];
+		}
+		if(vec[1]>y)
+		{
+			y = vec[1];
+		}
+		if(vec[2]>z)
+		{
+			z = vec[2];
+		}
+	}
+	
+	return make_tuple(x,y,z);
+}
+
+tuple<float,float,float> OBJLoader::getMinXYZ()const
+{
+	float x = numeric_limits<float>::infinity();
+	float y = numeric_limits<float>::infinity();
+	float z = numeric_limits<float>::infinity();
+	
+	for(auto&vec:mVertices)
+	{
+		if(vec[0]<x)
+		{
+			x = vec[0];
+		}
+		if(vec[1]<y)
+		{
+			y = vec[1];
+		}
+		if(vec[2]<z)
+		{
+			z = vec[2];
+		}
+	}
+	
+	return make_tuple(x,y,z);
 }
 
 OBJLoader::OBJLoader() :
@@ -126,6 +218,7 @@ bool OBJLoader::load(const char *filename)
 	
 	// Display log message
 	
+	unitize();
 	return true;
 }
 
@@ -148,4 +241,21 @@ vector<int> const &OBJLoader::getVertexIndices() const
 vector<int> const &OBJLoader::getNormalIndices() const
 {
 	return nIndices;
+}
+
+std::ostream& operator<<(std::ostream& out, XYZ xyz)
+{
+	switch(xyz)
+	{
+		case X:
+			out<<"X";
+			break;
+		case Y:
+			out<<"Y";
+			break;
+		case Z:
+			out<<"Z";
+			break;
+	}
+	return out;
 }
