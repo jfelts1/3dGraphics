@@ -76,7 +76,9 @@ void OBJLoader::unitize()
 	vec3 offsetFromCenter = getOffsetFromCenter(maxPos,minPos);
 	centerObject(offsetFromCenter);
 	double scale_factor = 2.0/largestAxis;
+	
 	printf("scale_factor: %f\n",scale_factor);
+	
 	scale(scale_factor);
 }
 
@@ -117,7 +119,7 @@ float OBJLoader::getLargestAxisValue(const std::tuple<float,float,float> maxXYZ,
 	{
 		axis = XYZ::Z;
 	}
-	cout<<"Largest axis is "<<axis<<" with value of "<<*result<<"."<<endl;
+	cout<<"Largest axis is "<<axis<<" with length of "<<*result<<"."<<endl;
 	return *result;
 }
 

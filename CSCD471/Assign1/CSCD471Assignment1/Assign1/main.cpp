@@ -135,7 +135,7 @@ void Display(void)
 	mat3 normalmatrix = mat3(view);
 	
 	// implement spot direction
-	vec3 spotDir = normalmatrix*vec3(-spotPos);
+	vec3 spotDir = normalmatrix*vec3(-lightPos);
 
 	projection = perspective(70.0f, g_aspect, 0.3f, 100.0f); 
 	mat4 mvp = projection*model_view;
