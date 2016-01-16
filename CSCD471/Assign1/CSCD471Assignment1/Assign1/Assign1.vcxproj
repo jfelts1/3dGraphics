@@ -123,16 +123,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="disk.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objloader.cpp" />
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contains.h" />
+    <ClInclude Include="disk.h" />
     <ClInclude Include="objloader.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="gouraud.fs" />
+    <None Include="gouraud.vs" />
     <None Include="spotlight.fs" />
     <None Include="spotlight.vs" />
   </ItemGroup>

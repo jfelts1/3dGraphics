@@ -2,10 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <cmath>
-#include <string>         // std::string
-#include <cstddef>         // std::size_t
-#include <GL/glew.h>
 #include "objloader.h"
 
 using glm::vec3;
@@ -50,8 +46,8 @@ vec3 computeVertexNormal(const vector<vec3> normalsToAvg)
 }
 
 vector<vec3> getAdjacentTriangleNormals(const size_t ind,
-	const std::vector<glm::vec3>& vertices,
-	const std::vector<int>& indices)
+	const vector<vec3>& vertices,
+	const vector<int>& indices)
 {
 	vector<vec3> ret;
 	for (auto beg = indices.begin(), end = indices.end();beg != end;advance(beg, NumPointsPerTriangle))
@@ -84,7 +80,7 @@ void OBJLoader::unitize()
 	scale(scale_factor);
 }
 
-void OBJLoader::centerObject(const glm::vec3 offset)
+void OBJLoader::centerObject(const vec3 offset)
 {
 	for(auto& vec: mVertices)
 	{
@@ -100,7 +96,7 @@ void OBJLoader::scale(const double scale_factor)
 	}
 }
 
-float OBJLoader::getLargestAxisValue(const std::tuple<float,float,float> maxXYZ,const std::tuple<float,float,float> minXYZ)const
+float OBJLoader::getLargestAxisValue(const tuple<float,float,float> maxXYZ,const tuple<float,float,float> minXYZ)const
 {
 	XYZ axis;
 	float x = get<0>(maxXYZ)-get<0>(minXYZ);
@@ -111,15 +107,15 @@ float OBJLoader::getLargestAxisValue(const std::tuple<float,float,float> maxXYZ,
 	auto dist = distance(tmp.begin(),result);
 	if(dist == 0)
 	{
-		axis = XYZ::X;
+		axis = X;
 	}
 	else if(dist == 1)
 	{
-		axis = XYZ::Y;
+		axis = Y;
 	}
 	else
 	{
-		axis = XYZ::Z;
+		axis = Z;
 	}
 	cout<<"Largest axis is "<<axis<<" with length of "<<*result<<"."<<endl;
 	return *result;
@@ -175,11 +171,11 @@ tuple<float,float,float> OBJLoader::getMinXYZ()const
 	return make_tuple(x,y,z);
 }
 
-vec3 OBJLoader::getOffsetFromCenter(const std::tuple<float,float,float> maxXYZ, const std::tuple<float,float,float> minXYZ)const
+vec3 OBJLoader::getOffsetFromCenter(const tuple<float,float,float> maxXYZ, const tuple<float,float,float> minXYZ)const
 {
-	float x = (get<0>(maxXYZ)+get<0>(minXYZ))/2.0;
-	float y = (get<1>(maxXYZ)+get<1>(minXYZ))/2.0;
-	float z = (get<2>(maxXYZ)+get<2>(minXYZ))/2.0;
+	float x = (get<0>(maxXYZ)+get<0>(minXYZ))/2.0f;
+	float y = (get<1>(maxXYZ)+get<1>(minXYZ))/2.0f;
+	float z = (get<2>(maxXYZ)+get<2>(minXYZ))/2.0f;
 	return vec3(x,y,z);
 }
 
@@ -207,7 +203,7 @@ bool OBJLoader::load(const char *filename)
 	}
 	
 	// Extract vertices and indices
-	std::string line;
+	string line;
 	vec3 vertex;
 	//glm::vec2 uv;
 	while (!OBJFile.eof()) {
@@ -228,7 +224,7 @@ bool OBJLoader::load(const char *filename)
 			else if (line.find("f ") != string::npos) 
 			{				
 				std::istringstream faceLine(line);
-				std::string val1;
+				string val1;
 				faceLine >> val1;
 				int val;
 				for (int n = 0; n < 3; n++){

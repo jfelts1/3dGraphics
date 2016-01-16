@@ -33,13 +33,13 @@ GLuint gouraudProgram;
 float g_aspect = 0.0;
 GLfloat g_angle = 0.0;
 GLuint vao;
+//GLuint diskVao;
 unsigned int vbo[2];
 GLuint ebo;
 vector<vec3> vertices;
 vector<int> vIndices;
 vector<vec3> normals; 
 vector<int> indices;
-static const double kPI = 3.1415926535897932384626433832795;
 static int gViewportWidth, gViewportHeight;
 static double gCameraScale = 1.0;
 static double gCameraTranslationX = 0;
@@ -73,7 +73,6 @@ void Initialize(void){
 		exit(EXIT_FAILURE);
 	}
 	loader.scale(SCALE);
-	disk = Disk(get<1>(loader.getMinXYZ());
 	vertices = loader.getVertices();
 	normals = loader.getNormals();
 	indices = loader.getVertexIndices();
@@ -84,6 +83,7 @@ void Initialize(void){
 	
 	// Use our shader
 	glUseProgram(program);
+	disk = Disk(get<1>(loader.getMinXYZ()));
 	view = lookAt(vec3(0.0f, 0.0f, 30.5f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 
@@ -100,14 +100,15 @@ void Initialize(void){
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3), &normals[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(static_cast<GLuint>(1), 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(static_cast<GLuint>(1), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(1);  // Vertex normal
 
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(int), &indices[0], GL_STATIC_DRAW);
-
 	glBindVertexArray(0);
+
+	disk.renderInit();
 
 	vec3 lightintensity = vec3(0.9f, 0.9f, 0.9f);
 	vec3 material_ambient(0.9, 0.5, 0.3);
@@ -144,12 +145,12 @@ void Display(void)
 	if(phongShading)
 	{
 		glUseProgram(program);
-		printf("Phong shading\n");
+		//printf("Phong shading\n");
 	}
 	else
 	{
 		glUseProgram(gouraudProgram);
-		printf("Gouraud shading\n");
+		//printf("Gouraud shading\n");
 	}
 	
 	model = mat4(1.0f);
@@ -193,9 +194,8 @@ void Display(void)
 	}
 
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
-	
-	
-	
+	disk.display();
+
 	glBindVertexArray(0);
 
 	glutSwapBuffers();

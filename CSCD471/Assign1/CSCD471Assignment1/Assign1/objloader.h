@@ -16,6 +16,8 @@
 #define NumPointsPerTriangle 3
 static_assert(NumPointsPerTriangle == 3, "Triangles must have 3 points.");
 
+static const double kPI = 3.1415926535897932384626433832795;
+
 enum XYZ
 {
 	X,
