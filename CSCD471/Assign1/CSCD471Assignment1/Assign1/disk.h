@@ -24,9 +24,10 @@
 class Disk
 {
 public:
+	Disk() = default;
 	Disk(const float yValue)
 	{
-		
+		initializeCone(yValue);
 	}
 private:
 	static constexpr double kPI = 3.1415926535897932384626433832795;

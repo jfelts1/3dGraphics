@@ -51,6 +51,7 @@ static int gLastMouseX, gLastMouseY;
 mat4 gCameraRotation;
 
 bool phongShading = true;
+Disk disk;
 
 
 void Initialize();
@@ -72,6 +73,7 @@ void Initialize(void){
 		exit(EXIT_FAILURE);
 	}
 	loader.scale(SCALE);
+	disk = Disk(get<1>(loader.getMinXYZ());
 	vertices = loader.getVertices();
 	normals = loader.getNormals();
 	indices = loader.getVertexIndices();
