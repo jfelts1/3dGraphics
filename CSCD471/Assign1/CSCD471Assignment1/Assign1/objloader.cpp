@@ -32,33 +32,35 @@ void OBJLoader:: computeNormals(vector<vec3> const &vertices, vector<int> const 
 	// Compute per-vertex normals here!
 	for (size_t i = 0;i < vertices.size();i++)
 	{
-		vector<vec3> normalsVec = getAdjacentTriangleNormals(i);
+		vector<vec3> normalsVec = getAdjacentTriangleNormals(i,mVertices,vIndices);
 		normals[i] = computeVertexNormal(normalsVec);
 		//printf("%llu: %f,%f,%f\n",i,normals[i][0],normals[i][1],normals[i][2]);
 		normalsVec.clear();
 	}
 }
 
-vec3 OBJLoader::computeVertexNormal(const vector<vec3> normalsVec) const
+vec3 computeVertexNormal(const vector<vec3> normalsToAvg)
 {
 	vec3 ret;
-	for (auto& norm : normalsVec)
+	for (auto& norm : normalsToAvg)
 	{
 		ret += norm;
 	}
 	return normalize(ret);
 }
 
-vector<vec3> OBJLoader::getAdjacentTriangleNormals(const size_t ind)
+vector<vec3> getAdjacentTriangleNormals(const size_t ind,
+	const std::vector<glm::vec3>& vertices,
+	const std::vector<int>& indices)
 {
 	vector<vec3> ret;
-	for (auto beg = vIndices.begin(), end = vIndices.end();beg != end;advance(beg, NumPointsPerTriangle))
+	for (auto beg = indices.begin(), end = indices.end();beg != end;advance(beg, NumPointsPerTriangle))
 	{
 		//if (contains(beg, beg + NumPointsPerTriangle, ind))
 		//considerably faster to do it this way
 		if((beg[0]==ind)||(beg[1]==ind)||(beg[2]==ind))
 		{
-			ret.emplace_back(triangleNormal(vec3(mVertices[beg[0]]), vec3(mVertices[beg[1]]), vec3(mVertices[beg[2]])));
+			ret.emplace_back(triangleNormal(vec3(vertices[beg[0]]), vec3(vertices[beg[1]]), vec3(vertices[beg[2]])));
 		}
 	}
 	return ret;

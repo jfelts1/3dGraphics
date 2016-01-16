@@ -10,12 +10,14 @@
 #define TWOPI 2*3.1415926535897932384626433832795
 #define LIGHT_EXPONENT 30.0f
 #define LIGHT_CUTOFF radians(15.0f)
+#define SHININESS 180.0f
 #define SCALE 7.0
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 #include "objloader.h"
 #include "shader.h"
+#include "disk.h"
 
 using namespace glm;
 using namespace std;
@@ -114,7 +116,7 @@ void Initialize(void){
 	glUniform3fv(glGetUniformLocation(program, "Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
 	glUniform3fv(glGetUniformLocation(program, "Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
 	glUniform3fv(glGetUniformLocation(program, "Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
-	glUniform1f(glGetUniformLocation(program, "Shininess"), 180.0f);
+	glUniform1f(glGetUniformLocation(program, "Shininess"), SHININESS);
 	glUniform1f(glGetUniformLocation(program, "Spot.exponent"), LIGHT_EXPONENT);
 	glUniform1f(glGetUniformLocation(program, "Spot.cutoff"), LIGHT_CUTOFF);
 	
@@ -124,7 +126,7 @@ void Initialize(void){
 	glUniform3fv(glGetUniformLocation(gouraudProgram, "Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
 	glUniform3fv(glGetUniformLocation(gouraudProgram, "Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
 	glUniform3fv(glGetUniformLocation(gouraudProgram, "Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
-	glUniform1f(glGetUniformLocation(gouraudProgram, "Shininess"), 180.0f);
+	glUniform1f(glGetUniformLocation(gouraudProgram, "Shininess"), SHININESS);
 	glUniform1f(glGetUniformLocation(gouraudProgram, "Spot.exponent"), LIGHT_EXPONENT);
 	glUniform1f(glGetUniformLocation(gouraudProgram, "Spot.cutoff"), LIGHT_CUTOFF);
 	
@@ -136,6 +138,7 @@ void Display(void)
 	// Clear
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+	
 	if(phongShading)
 	{
 		glUseProgram(program);
@@ -146,17 +149,10 @@ void Display(void)
 		glUseProgram(gouraudProgram);
 		printf("Gouraud shading\n");
 	}
+	
 	model = mat4(1.0f);
 	vec4 lightPos = vec4(10.0f*cos(g_angle), 10.0f, 10.0f*sin(g_angle), 1.0f);
 	vec4 spotPos = view*lightPos;
-	if(phongShading)
-	{		
-		glUniform4fv(glGetUniformLocation(program, "Spot.position"), 1, reinterpret_cast<GLfloat*>(&spotPos));
-	}
-	else
-	{
-		glUniform4fv(glGetUniformLocation(gouraudProgram, "Spot.position"), 1, reinterpret_cast<GLfloat*>(&spotPos));
-	}
 
 	mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
 	mat4 translated = translate(mat4(1.0f), vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
@@ -177,6 +173,7 @@ void Display(void)
 
 	if(phongShading)
 	{
+		glUniform4fv(glGetUniformLocation(program, "Spot.position"), 1, reinterpret_cast<GLfloat*>(&spotPos));
 		glUniform3fv(glGetUniformLocation(program, "Spot.direction"),1, static_cast<GLfloat*>(&spotDir[0]));
 		glUniformMatrix4fv(glGetUniformLocation(program, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
 		glUniformMatrix3fv(glGetUniformLocation(program, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
@@ -185,13 +182,13 @@ void Display(void)
 	}
 	else
 	{
+		glUniform4fv(glGetUniformLocation(gouraudProgram, "Spot.position"), 1, reinterpret_cast<GLfloat*>(&spotPos));
 		glUniform3fv(glGetUniformLocation(gouraudProgram, "Spot.direction"),1, static_cast<GLfloat*>(&spotDir[0]));
 		glUniformMatrix4fv(glGetUniformLocation(gouraudProgram, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
 		glUniformMatrix3fv(glGetUniformLocation(gouraudProgram, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
 		glUniformMatrix4fv(glGetUniformLocation(gouraudProgram, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
 		glUniformMatrix4fv(glGetUniformLocation(gouraudProgram, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 	}
-	
 
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
 	
@@ -204,7 +201,6 @@ void Display(void)
 
 void update(int n)
 {
-	
 	g_angle += 0.1f;
 	if (g_angle > static_cast<float>(TWOPI)) g_angle -= static_cast<float>(TWOPI);
 

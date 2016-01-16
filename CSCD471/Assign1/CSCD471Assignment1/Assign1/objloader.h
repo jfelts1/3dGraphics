@@ -52,8 +52,8 @@ private:
 	std::vector<int> nIndices;
 	std::vector<std::vector<glm::vec3>> m_faceAdjancentices;
 
-	glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) const;
-	std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind);
+	/*glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg) const;
+	std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind);*/
 	void unitize();
 	std::tuple<float,float,float> getMaxXYZ()const;
 	std::tuple<float,float,float> getMinXYZ()const;
@@ -62,6 +62,11 @@ private:
 	glm::vec3 getOffsetFromCenter(const std::tuple<float,float,float> maxXYZ, const std::tuple<float,float,float> minXYZ)const;
 	void centerObject(const glm::vec3 offset);
 };
+
+	glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg);
+	std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind,
+	const std::vector<glm::vec3>& vertices,
+	const std::vector<int>& indices);
 
 #endif
 
