@@ -9,6 +9,7 @@
 #include <set>
 
 #define GLM_FORCE_RADIANS 
+#define GLM_FORCE_CXX11
 #define TWOPI 2*3.1415926535897932384626433832795
 
 #include <glm/mat4x4.hpp> // glm::mat4
