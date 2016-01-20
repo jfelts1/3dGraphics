@@ -29,13 +29,13 @@ mat4 model_view;
 
 GLuint program;
 float aspect = 0.0;
-GLfloat angle = 0.0;
+GLfloat g_angle = 0.0;
 GLuint vao;
 unsigned int vbo[2];
 GLuint ebo;
 
-std::vector<glm::vec3> vertices;
-std::vector<glm::vec3> normals; // Won't be used at the moment.
+vector<vec3> vertices;
+vector<vec3> normals; // Won't be used at the moment.
 vector<int> indices;
 
 
@@ -70,6 +70,10 @@ void Initialize(void){
 	OBJLoader loader;
 
 	bool loadfile = loader.load("bunny.obj");
+	if(!loadfile)
+	{
+		exit(EXIT_FAILURE);
+	}
 	vertices = loader.getVertices();
 	normals = loader.getNormals();
 	indices = loader.getVertexIndices();
@@ -79,7 +83,7 @@ void Initialize(void){
 	
 	// Use our shader
 	glUseProgram(program);
-	view = glm::lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 
 	// Initialize shader lighting parameters
@@ -89,13 +93,13 @@ void Initialize(void){
 	glGenBuffers(2, vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(glm::vec3), &vertices[0], GL_DYNAMIC_DRAW);
-	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(vec3), &vertices[0], GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(static_cast<GLuint>(0), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0);  // Vertex position
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(vec3), &normals[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(static_cast<GLuint>(1), 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(1);  // Vertex normal
 
 	glGenBuffers(1, &ebo);
@@ -112,17 +116,15 @@ void Initialize(void){
 
 	GLfloat shininess = 100.0f;
 
-	glUniform3fv(glGetUniformLocation(program, "Light.Intensity"), 1, (GLfloat*)&light_intensity);
-	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, (GLfloat*)&light_position);
-	glUniform3fv(glGetUniformLocation(program, "Material.Ka"), 1, (GLfloat*)&material_ambient);
-	glUniform3fv(glGetUniformLocation(program, "Material.Kd"), 1, (GLfloat*)&material_diffuse[0]);
-	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, (GLfloat*)&material_specular[0]);
+	glUniform3fv(glGetUniformLocation(program, "Light.Intensity"), 1, reinterpret_cast<GLfloat*>(&light_intensity));
+	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&light_position));
+	glUniform3fv(glGetUniformLocation(program, "Material.Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
+	glUniform3fv(glGetUniformLocation(program, "Material.Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
+	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
 	glUniform1f(glGetUniformLocation(program, "Material.Shininess"), shininess);
 
 	
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-
-
 }
 /************************************************************************************************/
 void Display(void)
@@ -135,13 +137,13 @@ void Display(void)
 	
 	model = mat4(1.0f);
 
-	mat4 scaled = glm::scale(glm::mat4(1.0f), glm::vec3(gCameraScale, gCameraScale, gCameraScale));
-	mat4 translated = glm::translate(glm::mat4(1.0f), glm::vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
+	mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
+	mat4 translated = translate(mat4(1.0f), vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
 	mat4 transformation_matrix = translated*gCameraRotation*scaled;
 	model *= transformation_matrix;
 	model_view = view*model;
 	mat3 normalmatrix = mat3(vec3(model_view[0]), vec3(model_view[1]), vec3(model_view[2]));
-	projection = glm::perspective(70.0f, aspect, 0.3f, 100.0f); 
+	projection = perspective(70.0f, aspect, 0.3f, 100.0f); 
 	mat4 mvp = projection*model_view;
 
 	
@@ -154,13 +156,13 @@ void Display(void)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	
-	glUniformMatrix4fv(glGetUniformLocation(program, "ModelViewMatrix"), 1, GL_FALSE, (GLfloat*)&model_view[0]);
-	glUniformMatrix3fv(glGetUniformLocation(program, "NormalMatrix"), 1, GL_FALSE, (GLfloat*)&normalmatrix[0]);
-	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, (GLfloat*)&mvp[0]);
-	glUniformMatrix4fv(glGetUniformLocation(program, "ProjectionMatrix"), 1, GL_FALSE, (GLfloat*)&projection[0]);
+	glUniformMatrix4fv(glGetUniformLocation(program, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
+	glUniformMatrix3fv(glGetUniformLocation(program, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
+	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
+	glUniformMatrix4fv(glGetUniformLocation(program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 
 
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	
 	glBindVertexArray(0);
 
@@ -194,7 +196,10 @@ void updateTime(){
 }
 
 /**************************************************************************************/
-void keyboard(unsigned char key, int x, int y){
+// ReSharper disable CppParameterNeverUsed
+void keyboard(unsigned char key, int x, int y)
+{
+	// ReSharper restore CppParameterNeverUsed
 	switch (key){
 	case 'q':case 'Q':
 		exit(EXIT_SUCCESS);
@@ -368,11 +373,11 @@ int main(int argc, char** argv)
 	glutCreateWindow("Skinny Chubby Bunny");
 
 	if (glewInit()){
-		std::cerr << "Unable to initialize GLEW ... exiting" << std::endl;
+		cerr << "Unable to initialize GLEW ... exiting" << endl;
 	}
 	
 	Initialize();
-	std::cout << glGetString(GL_VERSION) << std::endl;
+	cout << glGetString(GL_VERSION) << endl;
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(keyboard);
 	glutMotionFunc(glutMotion);
