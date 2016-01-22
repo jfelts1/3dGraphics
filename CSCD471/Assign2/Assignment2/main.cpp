@@ -157,8 +157,8 @@ void Display(void)
 	//Here you need to update vertices using either glMapBuffer of glBufferSubData
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	float defAmount = WAVE_AMPLITUDE*sin(TWOPI * WAVE_FREQUENCY*timeUpdate + WAVE_PHASE);
-	deformModel(vertices, normals, defAmount);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size()*sizeof(decltype(vertices[0])), vertices.data());
+	auto tmp = deformModel(vertices, normals, defAmount);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, tmp.size()*sizeof(decltype(tmp[0])), tmp.data());
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	
