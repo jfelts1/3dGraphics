@@ -6,6 +6,7 @@
 #include <IL/ilu.h>
 #include <IL/ilut.h>
 #include <cfloat>
+#include <memory>
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
@@ -15,7 +16,7 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 #include "shader.h"
-#include "Plane.h"
+#include "shape.h"
 
 
 using namespace glm;
@@ -42,7 +43,7 @@ float aspect = 0.0;
 GLfloat g_angle = 0.0;
 
 GLuint planeTexID;
-Plane* plane;
+unique_ptr<Shape> plane2;
 static const double kPI = 3.1415926535897932384626433832795;
 
 void Initialize();
@@ -108,7 +109,25 @@ unsigned int loadTexture(string filename) {
 void Initialize(void){
 	// Create the program for rendering the model
 
-	plane = new Plane();
+    float side = 1.0f;
+    float side2 = side / 2.0f;
+    plane2 = make_unique<Shape>(vector<float>{
+                             -side2, -side2, 0.0,
+                             side2, -side2, 0.0,
+                             side2, side2, 0.0,
+                             -side2, side2, 0.0,
+                                },vector<float>{
+                             0.0f, 0.0f, 1.0f,
+                             0.0f, 0.0f, 1.0f,
+                             0.0f, 0.0f, 1.0f,
+                             0.0f, 0.0f, 1.0f,
+                                },vector<float>{
+                             0.0, 0.0,      //-2.0f, -2.0f,  //
+                             2.0, 0.0,      // 4.0f, -2.0f,  //
+                             2.0f, 2.0f,    // 4.0f, 4.0f, //   //
+                             0.0, 2.0,      // -2.0f, 4.0f,  //
+                         },vector<GLuint>{
+                             0, 1, 2, 0, 2, 3,});
 	
 	// Use our shader
 
@@ -117,7 +136,6 @@ void Initialize(void){
 	program = LoadShaders("texture.vs", "texture.fs");
 
 	glUseProgram(program);
-
 
 	vec3 light_intensity(1.0f, 1.0f, 1.0f);
 	vec4 light_position(10.0f, 10.0f, 10.0f, 1.0f);
@@ -163,7 +181,7 @@ void Display(void)
 	setMatrices();
 
 	glBindTexture(GL_TEXTURE_2D, planeTexID);
-	plane->render();
+    plane2->render();
 
 	glBindVertexArray(0);
 
@@ -192,7 +210,6 @@ void setMatrices(){
 
 void Reshape(int width, int height)
 {
-
 	gViewportWidth = width;
 	gViewportHeight = height;
 	glViewport(0, 0, width, height);
@@ -206,6 +223,10 @@ void Reshape(int width, int height)
 #ifdef WIN32
 #pragma warning(push)
 #pragma warning(disable: 4100)
+#endif
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 void keyboard(unsigned char key, int x, int y)
 {
@@ -225,6 +246,9 @@ void keyboard(unsigned char key, int x, int y)
 #ifdef WIN32
 #pragma warning(pop)
 #endif
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 /*********************************************************************************************/
 void makeIdentity(){
@@ -237,14 +261,14 @@ void makeIdentity(){
 /************************************************************************************************/
 double projectToTrackball(double radius, double x, double y)
 {
-	static const double Radius = sqrt(2.0);
+    static const double Radius = std::sqrt(2.0);
 	double z;
 
-	double dist = sqrt(x * x + y * y);
+    double dist = std::sqrt(x * x + y * y);
 	if (dist < radius * Radius / 2.0)
 	{
 		// Solve for sphere case.
-		z = sqrt(radius * radius - dist * dist);
+        z = std::sqrt(radius * radius - dist * dist);
 	}
 	else
 	{
