@@ -125,13 +125,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Plane.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="Shapes\shape.cpp" />
+    <ClCompile Include="Shapes\Shapes.cpp" />
     <ClCompile Include="TexturedPlane.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Plane.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="Shapes\shape.h" />
+    <ClInclude Include="Shapes\Shapes.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="texture.fs" />
