@@ -6,6 +6,7 @@
 #include <glm/detail/type_vec3.hpp>
 #include <tuple>
 #include <limits>
+#include <algorithm>
 
 enum XYZ
 {
