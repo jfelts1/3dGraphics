@@ -1,5 +1,8 @@
-#include "shape.h"
 #include <iostream>
+#include <limits>
+#include <algorithm>
+#include <array>
+#include "shape.h"
 
 using std::tuple;
 using std::numeric_limits;
@@ -136,12 +139,12 @@ float Shape::getLargestAxisValue(const tuple<float, float, float> maxXYZ, const 
 	float z = get<2>(maxXYZ) - get<2>(minXYZ);
 	array<float, 3> tmp{ x,y,z };
 	auto result = max_element(tmp.begin(), tmp.end());
-	auto dist = distance(tmp.begin(), result);
-	if (dist == 0)
+	auto largestAxisIndex = distance(tmp.begin(), result);
+	if (largestAxisIndex == 0)
 	{
 		axis = X;
 	}
-	else if (dist == 1)
+	else if (largestAxisIndex == 1)
 	{
 		axis = Y;
 	}

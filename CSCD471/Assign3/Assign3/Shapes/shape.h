@@ -2,11 +2,9 @@
 #define GLM_FORCE_CXX11
 #include <GL/glew.h>
 #include <vector>
-#include <array>
 #include <glm/detail/type_vec3.hpp>
 #include <tuple>
-#include <limits>
-#include <algorithm>
+
 
 enum XYZ
 {

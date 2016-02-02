@@ -41,8 +41,11 @@ GLuint program;
 float aspect = 0.0;
 GLfloat g_angle = 0.0;
 
-GLuint planeTexID;
+GLuint g_TexID;
+
 Shape cube;
+Shape pyramid;
+
 static const double kPI = 3.1415926535897932384626433832795;
 
 void Initialize();
@@ -105,10 +108,11 @@ unsigned int loadTexture(string filename) {
 void Initialize(void){
 	// Create the program for rendering the model
 
-	cube = Shapes::makeCube(vec3(-0.5f,0.5f,0.0f));
+	cube = Shapes::makeCube(vec3(-1.0f,1.0f,0.0f),0.5f);
+	pyramid = Shapes::makePyramid(vec3(1.0f, 1.0f, 0.0f),0.5f);
 	// Use our shader
 
-	view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	view = lookAt(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 	program = LoadShaders("texture.vs", "texture.fs");
 
@@ -129,7 +133,7 @@ void Initialize(void){
 	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
 	glUniform1f(glGetUniformLocation(program, "Material.Shininess"), shininess);
 	
-	planeTexID = loadTexture("grass.bmp");
+	g_TexID = loadTexture("grass.bmp");
 	
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
@@ -152,8 +156,9 @@ void Display(void)
 	
 	setMatrices();
 
-	glBindTexture(GL_TEXTURE_2D, planeTexID);
+	glBindTexture(GL_TEXTURE_2D, g_TexID);
 	cube.render();
+	pyramid.render();
 
 	glBindVertexArray(0);
 
