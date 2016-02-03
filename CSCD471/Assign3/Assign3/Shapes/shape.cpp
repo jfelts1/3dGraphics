@@ -16,7 +16,11 @@ void Shape::render() const
 {
     for(size_t i =0;i<m_indices.size();i+=3)
     {
-        printf("I1:%i I2:%i I3:%i\n",m_indices[i],m_indices[i+1],m_indices[i+2]);
+        /*printf("I1:%i I2:%i I3:%i v1[%.2f,%.2f,%.2f] v2[%.2f,%.2f,%.2f] v3[%.2f,%.2f,%.2f]\n",m_indices[i],m_indices[i+1],m_indices[i+2],
+		m_vertices[m_indices[i]][0], m_vertices[m_indices[i]][1], m_vertices[m_indices[i]][2],
+		m_vertices[m_indices[i+1]][0], m_vertices[m_indices[i+1]][1], m_vertices[m_indices[i+1]][2],
+		m_vertices[m_indices[i + 2]][0], m_vertices[m_indices[i + 2]][1], m_vertices[m_indices[i + 2]][2]);*/
+		printf("I1:%3i I2:%3i I3:%3i\n", m_indices[i], m_indices[i + 1], m_indices[i + 2]);
     }
     glBindVertexArray(m_vao);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);

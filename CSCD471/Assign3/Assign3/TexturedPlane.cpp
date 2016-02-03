@@ -109,8 +109,8 @@ void Initialize(void){
 	// Create the program for rendering the model
 
 	cube = Shapes::makeCube(vec3(-1.0f,1.0f,0.0f),0.5f);
-	pyramid = Shapes::makePyramid(vec3(1.0f, 1.0f, 0.0f),0.5f);
-    sphere = Shapes::makeSphere();
+	pyramid = Shapes::makePyramid(vec3(0.0f, -1.0f, 0.0f), 0.5f);
+    sphere = Shapes::makeSphere(vec3(1.0f, 1.0f, 0.0f), 0.5f);
 	// Use our shader
 
 	view = lookAt(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -158,8 +158,8 @@ void Display(void)
 	setMatrices();
 
 	glBindTexture(GL_TEXTURE_2D, g_TexID);
-    //cube.render();
-    //pyramid.render();
+    cube.render();
+    pyramid.render();
     sphere.render();
 
 	glBindVertexArray(0);
