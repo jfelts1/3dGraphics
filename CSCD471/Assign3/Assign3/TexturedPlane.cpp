@@ -9,7 +9,6 @@
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
-#define TWOPI 2*3.1415926535897932384626433832795
 
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
@@ -45,6 +44,7 @@ GLuint g_TexID;
 
 Shape cube;
 Shape pyramid;
+Shape sphere;
 
 static const double kPI = 3.1415926535897932384626433832795;
 
@@ -110,6 +110,7 @@ void Initialize(void){
 
 	cube = Shapes::makeCube(vec3(-1.0f,1.0f,0.0f),0.5f);
 	pyramid = Shapes::makePyramid(vec3(1.0f, 1.0f, 0.0f),0.5f);
+    sphere = Shapes::makeSphere();
 	// Use our shader
 
 	view = lookAt(vec3(0.0f, 0.0f, 4.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -157,8 +158,9 @@ void Display(void)
 	setMatrices();
 
 	glBindTexture(GL_TEXTURE_2D, g_TexID);
-	cube.render();
-	pyramid.render();
+    //cube.render();
+    //pyramid.render();
+    sphere.render();
 
 	glBindVertexArray(0);
 

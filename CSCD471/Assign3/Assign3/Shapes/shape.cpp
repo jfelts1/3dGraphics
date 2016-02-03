@@ -14,6 +14,10 @@ using std::array;
 
 void Shape::render() const
 {
+    for(size_t i =0;i<m_indices.size();i+=3)
+    {
+        printf("I1:%i I2:%i I3:%i\n",m_indices[i],m_indices[i+1],m_indices[i+2]);
+    }
     glBindVertexArray(m_vao);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
 }
