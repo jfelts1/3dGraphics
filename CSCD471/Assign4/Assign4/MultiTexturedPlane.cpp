@@ -5,6 +5,7 @@
 #include <IL/il.h>
 #include <IL/ilu.h>
 #include <IL/ilut.h>
+#include <cfloat>
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
@@ -378,7 +379,10 @@ void glutMotion(int x, int y)
 }
 /************************************************************************************************************************************************************/
 /*********/
-int main(int argc, char** argv){
+int main(int argc, char** argv)
+{
+    glewExperimental = GL_TRUE;
+    glutInitContextVersion(3,3);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
