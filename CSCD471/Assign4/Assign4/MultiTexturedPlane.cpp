@@ -391,7 +391,7 @@ int main(int argc, char** argv)
 	glutCreateWindow("Textured Plane");
 
 	if (glewInit()){
-		cerr << "Unable to initialize GLEW ... exiting" << endl;
+        cerr << "Unable to initialize GLEW ... exiting" << endl;
 	}
 
 	ilInit();
