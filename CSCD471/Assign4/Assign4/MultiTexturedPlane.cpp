@@ -17,7 +17,6 @@
 
 #include "shader.h"
 #include "shape.h"
-#include "Plane.h"
 #include "objloader.h"
 
 
@@ -46,7 +45,7 @@ GLfloat g_angle = 0.0;
 
 GLuint texIDOne;
 GLuint texIDTwo;
-Plane* plane;
+Shape bun;
 static const double kPI = 3.1415926535897932384626433832795;
 GLint  time_loc;
 
@@ -62,13 +61,11 @@ double projectToTrackball(double radius, double x, double y);
 unsigned int loadTexture(string filename);
 void setMatrices();
 
-
 /************************************/
 unsigned int loadTexture(string filename) {
 
 	ILboolean success;
 	unsigned int imageID;
-
 
 	// Load Texture Map
 	ilGenImages(1, &imageID);
@@ -76,7 +73,7 @@ unsigned int loadTexture(string filename) {
 	ilBindImage(imageID); /* Binding of DevIL image name */
 	ilEnable(IL_ORIGIN_SET);
 	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
-	success = ilLoadImage(const_cast<ILstring>(filename.c_str()));
+	success = ilLoadImage(filename.c_str());
 
 	if (!success) {
 		cout << "Couldn't load the following texture file: " << filename.c_str() << endl;
@@ -103,44 +100,27 @@ unsigned int loadTexture(string filename) {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-
-
 	/* Because we have already copied image data into texture data
 	we can release memory used by image. */
 	ilDeleteImages(1, &imageID);
 	return tid;
 }
 
-
-
 /************************************/
 void Initialize(void){
 	// Create the program for rendering the model
-
-	plane = new Plane();
 	
 	// Use our shader
-    std::ifstream fin;
-    fin.open("bunny2.obj",std::ios::in);
-    if(fin.is_open())
-    {
-        objLoader loader(fin);
-        fin.close();
-        //loader.print_data();
-        auto verts = loader.getVertices();
-    }
-    else
-    {
-        puts("Failed to open input file");
-    }
-
+	string bunny = "bunny2.obj";
+	objLoader loader(bunny);
+	//loader.print_data();
+	bun = Shape(loader.getVertices(), loader.getNormals(), loader.getTextures(), loader.getIndices());
 
 	view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 	program = LoadShaders("multitex.vs", "multitex.fs");
 
 	glUseProgram(program);
-
 
 	vec3 light_intensity(1.0f, 1.0f, 1.0f);
 	vec4 light_position(10.0f, 10.0f, 10.0f, 1.0f);
@@ -188,7 +168,7 @@ void Display(void)
 	glBindTexture(GL_TEXTURE_2D, texIDOne);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texIDTwo);
-	plane->render();
+	bun.render();
 
 	glBindVertexArray(0);
 
@@ -366,9 +346,7 @@ void glutMotion(int x, int y)
 		deltaRotation[2][1] = static_cast<float>(rotateVecCross[1] * rotateVecCross[2] * (1 - cos_rotate_angle) - rotateVecCross[0] * sin_rotate_angle);
 		deltaRotation[2][2] = static_cast<float>(cos_rotate_angle + rotateVecCross[2] * rotateVecCross[2] * (1 - cos_rotate_angle));
 
-
 		mat4 tempMatrix;
-
 
 		if (abs(angle) > DBL_EPSILON*20.0){
 			tempMatrix = gCameraRotation*deltaRotation;

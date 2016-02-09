@@ -1,61 +1,131 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <array>
 #include "objloader.h"
 using std::string;
 using std::vector;
 using glm::vec3;
 using std::stringstream;
+using std::ifstream;
+using std::array;
 
-objLoader::objLoader(std::istream& objectInput)
+objLoader::objLoader(const string& filepath)
 {
-    objectInput.seekg(0,objectInput.end);
-    size_t len = objectInput.tellg();
-    objectInput.seekg(0,objectInput.beg);
-    m_data.resize(len,' ');
-    char* begin = &*m_data.begin();
-    objectInput.read(begin,len);
+	ifstream fin;
+	fin.open(filepath, std::ios::in);
+	if(fin.is_open())
+	{	
+		fin.seekg(0, fin.end);
+		size_t len = fin.tellg();
+		fin.seekg(0, fin.beg);
+		m_data.resize(len, ' ');
+		char* begin = &*m_data.begin();
+		fin.read(begin, len);
+		fin.close();
+	}
+	else
+	{
+		puts("Failed to open input file");
+	}
 }
 
 vector<vec3> objLoader::getVertices()const
-{
-    vector<vec3> ret;
-    auto pos = m_data.find("vn ");
-    auto pos2 = m_data.find("\n",pos);
-    stringstream tmp(m_data.substr(pos+sizeof("vn "),pos2-sizeof("vn ")));
-    float x,y,z;
-    while(pos != string::npos && pos2 != string::npos)
-    {
-        //printf("pos:%llu, pos2:%llu, pos2-pos:%llu\n",pos+sizeof("vn "),pos2,pos2-pos-sizeof("vn "));
-        //std::cout << tmp.str() <<std::endl;
-        tmp>>x;
-        tmp>>y;
-        tmp>>z;
-        printf("x:%f, y:%f, z:%f\n",x,y,z);
-        ret.emplace_back(vec3(x,y,z));
-        pos = m_data.find("vn ",pos+1);
-        pos2 = m_data.find("\n",pos);
-        if(pos!=string::npos && pos2!= string::npos)
-        {
-            tmp = stringstream(m_data.substr(pos+sizeof("vn "),pos2-pos-sizeof("vn ")));
-        }
-    }
-
+{   
+	vector<vec3> ret;
+	auto vertStr = "v ";
+	auto vertStrLen = string(vertStr).size();
+	auto pos = m_data.find(vertStr);
+	auto pos2 = m_data.find("\n", pos);
+	float x, y, z;
+	while (pos != string::npos && pos2 != string::npos)
+	{
+		stringstream tmp(m_data.substr(pos + vertStrLen, pos2 - pos - vertStrLen));
+		tmp >> x;
+		tmp >> y;
+		tmp >> z;	
+		//printf("[VERT] x:%f, y:%f, z:%f\n",x,y,z);
+		ret.emplace_back(vec3(x, y, z));
+		pos = m_data.find(vertStr, pos + 1);
+		pos2 = m_data.find("\n", pos);
+	}
     return ret;
 }
 
 vector<vec3> objLoader::getNormals()const
 {
-    vector<vec3> ret;
+	vector<vec3> ret;
+	auto normStr = "vn ";
+	auto normStrLen = string(normStr).size();
+	auto pos = m_data.find(normStr);
+	auto pos2 = m_data.find("\n", pos);
+	float x, y, z;
+	while (pos != string::npos && pos2 != string::npos)
+	{
+		stringstream tmp(m_data.substr(pos + normStrLen, pos2 - pos - normStrLen));
+		tmp >> x;
+		tmp >> y;
+		tmp >> z;
+		//printf("[NORM] x:%f, y:%f, z:%f\n", x, y, z);
+		ret.emplace_back(vec3(x, y, z));
+		pos = m_data.find(normStr, pos + 1);
+		pos2 = m_data.find("\n", pos);
+	}
     return ret;
 }
 
 vector<float> objLoader::getTextures()const
 {
     vector<float> ret;
+	auto texStr = "vt ";
+	auto texStrLen = string(texStr).size();
+	auto pos = m_data.find(texStr);
+	auto pos2 = m_data.find("\n",pos);
+	float x, y;
+	while(pos != string::npos && pos2 != string::npos)
+	{
+		stringstream tmp(m_data.substr(pos + texStrLen, pos2 - pos - texStrLen));
+		tmp >> x;
+		tmp >> y;
+		//printf("[TEX] x:%f, y:%f\n", x, y);
+		ret.emplace_back(x);
+		ret.emplace_back(y);
+		pos = m_data.find(texStr, pos + 1);
+		pos2 = m_data.find("\n", pos);
+	}
     return ret;
 }
 
 vector<GLuint> objLoader::getIndices()const
 {
     vector<GLuint> ret;
-
+	auto indStr = "f ";
+	auto indStrLen = string(indStr).size();
+	auto pos = m_data.find(indStr);
+	auto pos2 = m_data.find("\n", pos);
+	GLuint x, y, z;
+	array<string, 3> temp;
+	while (pos != string::npos && pos2 != string::npos)
+	{
+		stringstream tmp(m_data.substr(pos + indStrLen, pos2 - pos - indStrLen));
+		tmp >> temp[0];
+		tmp >> temp[1];
+		tmp >> temp[2];
+		stringstream tmp2(temp[0]);
+		tmp2 >> x;
+		tmp2 = stringstream(temp[1]);
+		tmp2 >> y;
+		tmp2 = stringstream(temp[2]);
+		tmp2 >> z;
+		x--;
+		y--;
+		z--;
+		//printf("[IND] x:%i, y:%i, z:%i\n", x, y, z);
+		ret.emplace_back(x);
+		ret.emplace_back(y);
+		ret.emplace_back(z);
+		pos = m_data.find(indStr, pos + 1);
+		pos2 = m_data.find("\n", pos);
+	}
     return ret;
 }

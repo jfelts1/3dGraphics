@@ -121,8 +121,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="MultiTexturedPlane.cpp" />
-    <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="objloader.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="shape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="multitex.fs" />
@@ -133,8 +134,9 @@
     <Image Include="test3.dds" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Plane.h" />
+    <ClInclude Include="objloader.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shape.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
