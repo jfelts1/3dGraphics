@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <fstream>
 #include <iostream>
 #include <math.h>
 #include <IL/il.h>
@@ -15,7 +16,9 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 #include "shader.h"
+#include "shape.h"
 #include "Plane.h"
+#include "objloader.h"
 
 
 using namespace glm;
@@ -117,6 +120,20 @@ void Initialize(void){
 	plane = new Plane();
 	
 	// Use our shader
+    std::ifstream fin;
+    fin.open("bunny2.obj",std::ios::in);
+    if(fin.is_open())
+    {
+        objLoader loader(fin);
+        fin.close();
+        //loader.print_data();
+        auto verts = loader.getVertices();
+    }
+    else
+    {
+        puts("Failed to open input file");
+    }
+
 
 	view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
