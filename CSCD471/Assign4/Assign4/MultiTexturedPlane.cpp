@@ -128,7 +128,7 @@ void Initialize(void){
 	vec3 material_diffuse(0.9, 0.9, 0.9);
 	vec3 material_specular(0.9, 0.9, 0.9);
 
-	GLfloat shininess = 100.0f;
+    GLfloat shininess = 100.0f;
 
 	glUniform3fv(glGetUniformLocation(program, "Light.Intensity"), 1, reinterpret_cast<GLfloat*>(&light_intensity));
 	glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&light_position));
