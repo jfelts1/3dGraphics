@@ -43,8 +43,25 @@ void main() {
     vec3 ambAndDiff, spec;
     vec4 TexColorOne = texture( Tex1, TexCoord_1 );
     vec4 TexColorTwo = texture( Tex2, TexCoord_2 );
-    phongModel(Position, Normal, ambAndDiff, spec );
+    
    
-vec4 texColor = (TexColorOne + TexColorTwo );
-    FragColor = vec4(ambAndDiff, 1.0 ) * texColor + vec4(spec,1);
+    vec4 texColor = (TexColorOne + TexColorTwo );
+    if(texColor[0]>0.95)
+    {
+        discard;
+    }
+    else
+    {
+        if(gl_FrontFacing)
+        {
+            phongModel(Position, Normal, ambAndDiff, spec );
+            FragColor = vec4(ambAndDiff, 1.0 ) * texColor + vec4(spec,1);
+        }
+        else
+        {
+            phongModel(Position, -Normal, ambAndDiff, spec );
+            FragColor = vec4(ambAndDiff, 1.0 ) * texColor + vec4(spec,1);
+        }
+    }
+    
 }

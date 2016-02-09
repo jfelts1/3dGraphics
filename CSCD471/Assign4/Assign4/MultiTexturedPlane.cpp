@@ -114,7 +114,7 @@ void Initialize(void){
 	string bunny = "bunny2.obj";
 	objLoader loader(bunny);
 	//loader.print_data();
-	bun = Shape(loader.getVertices(), loader.getNormals(), loader.getTextures(), loader.getIndices());
+    bun = Shape(loader.getVertices(), loader.getTextures(), loader.getIndices());
 
 	view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
@@ -141,7 +141,7 @@ void Initialize(void){
 	glUniform1i(glGetUniformLocation(program, "Tex1"), 0);
 	texIDTwo = loadTexture("test3.dds");
 	glUniform1i(glGetUniformLocation(program, "Tex2"), 1);
-	time_loc = glGetUniformLocation(program, "time");
+    //time_loc = glGetUniformLocation(program, "time");
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 /****************************************************************************/

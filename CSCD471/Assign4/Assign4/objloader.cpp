@@ -87,7 +87,7 @@ vector<float> objLoader::getTextures()const
 		stringstream tmp(m_data.substr(pos + texStrLen, pos2 - pos - texStrLen));
 		tmp >> x;
 		tmp >> y;
-		//printf("[TEX] x:%f, y:%f\n", x, y);
+        //printf("[TEX] x:%f, y:%f\n", x, y);
 		ret.emplace_back(x);
 		ret.emplace_back(y);
 		pos = m_data.find(texStr, pos + 1);
