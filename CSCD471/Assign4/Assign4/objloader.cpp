@@ -113,10 +113,11 @@ vector<GLuint> objLoader::getIndices()const
 		tmp >> temp[2];
 		stringstream tmp2(temp[0]);
 		tmp2 >> x;
-		tmp2 = stringstream(temp[1]);
-		tmp2 >> y;
-		tmp2 = stringstream(temp[2]);
-		tmp2 >> z;
+        //because pre 5.0 gcc can't move streams
+        stringstream tmp3(temp[1]);
+        tmp3 >> y;
+        stringstream tmp4(temp[2]);
+        tmp4 >> z;
 		x--;
 		y--;
 		z--;

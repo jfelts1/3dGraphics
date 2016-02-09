@@ -247,14 +247,14 @@ void makeIdentity(){
 /************************************************************************************************/
 double projectToTrackball(double radius, double x, double y)
 {
-	static const double Radius = sqrt(2.0);
+    static const double Radius = std::sqrt(2.0);
 	double z;
 
-	double dist = sqrt(x * x + y * y);
+    double dist = std::sqrt(x * x + y * y);
 	if (dist < radius * Radius / 2.0)
 	{
 		// Solve for sphere case.
-		z = sqrt(radius * radius - dist * dist);
+        z = std::sqrt(radius * radius - dist * dist);
 	}
 	else
 	{
