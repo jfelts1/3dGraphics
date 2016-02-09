@@ -95,7 +95,7 @@ private:
         {
             ret += norm;
         }
-        return normalize(ret);
+        return glm::normalize(ret);
     }
 
     std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind,
@@ -109,7 +109,7 @@ private:
             //considerably faster to do it this way
             if((beg[0]==ind)||(beg[1]==ind)||(beg[2]==ind))
             {
-                ret.emplace_back(triangleNormal(glm::vec3(vertices[beg[0]]), glm::vec3(vertices[beg[1]]), glm::vec3(vertices[beg[2]])));
+                ret.emplace_back(glm::triangleNormal(glm::vec3(vertices[beg[0]]), glm::vec3(vertices[beg[1]]), glm::vec3(vertices[beg[2]])));
             }
         }
         return ret;
