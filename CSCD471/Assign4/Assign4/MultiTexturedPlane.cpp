@@ -116,7 +116,7 @@ void Initialize(void){
 	//loader.print_data();
     bun = Shape(loader.getVertices(), loader.getTextures(), loader.getIndices());
 
-	view = lookAt(vec3(0.0f, 0.0f, 2.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 	program = LoadShaders("multitex.vs", "multitex.fs");
 
