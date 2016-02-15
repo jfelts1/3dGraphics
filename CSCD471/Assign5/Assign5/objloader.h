@@ -5,6 +5,7 @@
 #define GLM_FORCE_CXX11
 #include <GL/glew.h>
 #include <glm/detail/type_vec3.hpp>
+#include <glm/detail/type_vec2.hpp>
 
 class objLoader
 {
@@ -16,7 +17,7 @@ public:
     }
     std::vector<glm::vec3> getVertices() const;
     std::vector<glm::vec3> getNormals() const;
-    std::vector<float> getTextures()const;
+    std::vector<glm::vec2> getTextures()const;
     std::vector<GLuint> getIndices()const;
 
 private:

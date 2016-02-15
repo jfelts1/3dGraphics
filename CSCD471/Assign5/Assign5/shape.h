@@ -24,31 +24,17 @@ public:
     Shape() = default;
 
 	Shape(const std::vector<glm::vec3>& vertices,
-          const std::vector<glm::vec3>& normals,
-          const std::vector<float>& textures,
-          const std::vector<GLuint>& indices,
-		  const glm::vec3 position = glm::vec3(0),
-		  const float scale_factor = 1.0f) :
-        m_vertices{vertices},
-        m_normals{normals},
-        m_textures{textures},
-        m_indices{indices}
-    {
-        commonInitShape(position,scale_factor);
-    }
+	      const std::vector<glm::vec3>& normals,
+	      const std::vector<glm::vec2>& textures,
+	      const std::vector<GLuint>& indices,
+	      const glm::vec3 position = glm::vec3(0),
+	      const float scale_factor = 1.0f);
 
-    Shape(const std::vector<glm::vec3>& vertices,
-          const std::vector<float>& textures,
-          const std::vector<GLuint>& indices,
-          const glm::vec3 position = glm::vec3(0),
-          const float scale_factor = 1.0f):
-        m_vertices{vertices},
-        m_textures{textures},
-        m_indices{indices}
-    {
-        calculateNormals();
-        commonInitShape(position,scale_factor);
-    }
+	Shape(const std::vector<glm::vec3>& vertices,
+	      const std::vector<glm::vec2>& textures,
+	      const std::vector<GLuint>& indices,
+	      const glm::vec3 position = glm::vec3(0),
+	      const float scale_factor = 1.0f);
 
 	virtual ~Shape() = default;
     void render() const;
@@ -59,59 +45,47 @@ public:
 private:
     std::vector<glm::vec3> m_vertices;
     std::vector<glm::vec3> m_normals;
-    std::vector<float> m_textures;
+    std::vector<glm::vec2> m_textures;
+	std::vector<glm::mat3> m_tangentSpaceTransformationMats;
     std::vector<GLuint> m_indices;
     GLuint m_vao;
 
 	void unitize();
-	float getLargestAxisValue(const std::tuple<float, float, float> maxXYZ, const std::tuple<float, float, float> minXYZ)const;
-	glm::vec3 getOffsetFromCenter(const std::tuple<float, float, float> maxXYZ, const std::tuple<float, float, float> minXYZ)const;
+
+	float getLargestAxisValue(const std::tuple<float, float, float> maxXYZ,
+		const std::tuple<float, float, float> minXYZ)const;
+	glm::vec3 getOffsetFromCenter(const std::tuple<float, float, float> maxXYZ,
+		const std::tuple<float, float, float> minXYZ)const;
+
 	void initShapeRender();
-    void commonInitShape(const glm::vec3 position, const float scale_factor)
-    {
-        unitize();
-        scaleShape(scale_factor);
-        shiftShape(position);
-        initShapeRender();
-    }
 
-    void calculateNormals()
-    {
-        m_normals.resize(m_vertices.size(), glm::vec3(0.0f, 0.0f, 0.0f));
+	void commonInitShape(const glm::vec3 position, const float scale_factor);
 
-            // Compute per-vertex normals here!
-            for (size_t i = 0;i < m_vertices.size();i++)
-            {
-                std::vector<glm::vec3> normalsVec = getAdjacentTriangleNormals(i,m_vertices,m_indices);
-                m_normals[i] = computeVertexNormal(normalsVec);
-                //printf("%llu: %f,%f,%f\n",i,normals[i][0],normals[i][1],normals[i][2]);
-                normalsVec.clear();
-            }
-    }
-    glm::vec3 computeVertexNormal(const std::vector<glm::vec3> normalsToAvg)
-    {
-        glm::vec3 ret;
-        for (auto& norm : normalsToAvg)
-        {
-            ret += norm;
-        }
-        return glm::normalize(ret);
-    }
+	void calculateNormals();	
+	void calculateTangentSpace();
+	std::vector<std::pair<glm::vec3, glm::vec3>> calculateTangentVectors();
 
-    std::vector<glm::vec3> getAdjacentTriangleNormals(const size_t ind,
-        const std::vector<glm::vec3>& vertices,
-        const std::vector<GLuint>& indices)
-    {
-        std::vector<glm::vec3> ret;
-        for (auto beg = indices.begin(), end = indices.end();beg != end;advance(beg, NumPointsPerTriangle))
-        {
-            //if (contains(beg, beg + NumPointsPerTriangle, ind))
-            //considerably faster to do it this way
-            if((beg[0]==ind)||(beg[1]==ind)||(beg[2]==ind))
-            {
-                ret.emplace_back(glm::triangleNormal(glm::vec3(vertices[beg[0]]), glm::vec3(vertices[beg[1]]), glm::vec3(vertices[beg[2]])));
-            }
-        }
-        return ret;
-    }
+	template<typename iter>
+	auto calculateTBMatrix(iter faceStart)
+	{
+		auto p0 = m_vertices[faceStart[0]];
+		auto p1 = m_vertices[faceStart[1]];
+		auto p2 = m_vertices[faceStart[2]];
+
+		auto u0 = m_textures[faceStart[0]].x;
+		auto u1 = m_textures[faceStart[1]].x;
+		auto u2 = m_textures[faceStart[2]].x;
+		auto v0 = m_textures[faceStart[0]].y;
+		auto v1 = m_textures[faceStart[1]].y;
+		auto v2 = m_textures[faceStart[2]].y;
+
+		glm::vec3 Q1(p1 - p0);
+		glm::vec3 Q2(p2 - p0);
+		auto s1 = u1 - u0;
+		auto s2 = u2 - u0;
+		auto t1 = v1 - v0;
+		auto t2 = v2 - v0;
+		return 1.0f / (s1*t2 - s2*t1)*(glm::mat2x3(Q1.x, Q2.x, Q1.y, Q2.y, Q1.z, Q2.z)*glm::mat2(t2, -s2, -t1, s1));
+	}
+
 };

@@ -5,6 +5,7 @@ in vec3 Normal;
 in vec2 TexCoord;
 
 uniform sampler2D Tex1;
+uniform sampler2D NormalMap;
 
 struct LightInfo {
   vec4 Position;  // Light position in eye coords.

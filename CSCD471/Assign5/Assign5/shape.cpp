@@ -2,7 +2,11 @@
 #include <limits>
 #include <algorithm>
 #include <array>
+#include <vector>
+#include <cassert>
 #include "shape.h"
+#include "Debug.h"
+
 
 using std::tuple;
 using std::numeric_limits;
@@ -11,6 +15,37 @@ using std::make_tuple;
 using std::distance;
 using std::max_element;
 using std::array;
+using std::vector;
+using glm::vec3;
+using glm::vec2;
+using std::pair;
+
+Shape::Shape(const vector<vec3>& vertices,
+	const vector<vec3>& normals,
+	const vector<vec2>& textures,
+	const vector<GLuint>& indices,
+	const vec3 position,
+	const float scale_factor) :
+	m_vertices{ vertices },
+	m_normals{ normals },
+	m_textures{ textures },
+	m_indices{ indices }
+{
+	commonInitShape(position, scale_factor);
+}
+
+Shape::Shape(const vector<vec3>& vertices,
+	const vector<vec2>& textures,
+	const vector<GLuint>& indices,
+	const vec3 position,
+	const float scale_factor) :
+	m_vertices{ vertices },
+	m_textures{ textures },
+	m_indices{ indices }
+{
+	calculateNormals();
+	commonInitShape(position, scale_factor);
+}
 
 void Shape::render() const
 {
@@ -26,7 +61,7 @@ void Shape::render() const
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
 }
 
-void Shape::shiftShape(const glm::vec3 offset)
+void Shape::shiftShape(const vec3 offset)
 {
 	for (auto& vec : m_vertices)
 	{
@@ -69,6 +104,75 @@ void Shape::initShapeRender()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(decltype(m_indices[0])), m_indices.data(), GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
+}
+
+void Shape::commonInitShape(const vec3 position, const float scale_factor)
+{
+	unitize();
+	scaleShape(scale_factor);
+	shiftShape(position);
+	calculateTangentSpace();
+	initShapeRender();
+}
+
+void Shape::calculateNormals()
+{
+	m_normals.resize(m_vertices.size(), vec3(0.0f));
+	auto maxElementIndex = distance(m_indices.begin(), max_element(m_indices.begin(), m_indices.end()));
+	dprintf("m_normals.size():%llu,m_indices[maxElementIndex]+1:%llu,maxElementIndex:%llu\n", m_normals.size(), m_indices[maxElementIndex] + 1, maxElementIndex);
+	assert(m_normals.size() == m_indices[maxElementIndex]+1);
+	// Compute per-vertex normals here!
+	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg,NumPointsPerTriangle))
+	{
+		vec3 faceNorm(triangleNormal(m_vertices[beg[0]], m_vertices[beg[1]], m_vertices[beg[2]]));
+		m_normals[beg[0]] += faceNorm;
+		m_normals[beg[1]] += faceNorm;
+		m_normals[beg[2]] += faceNorm;
+	}
+	for(auto& norm: m_normals)
+	{
+		norm = normalize(norm);
+	}
+}
+
+void Shape::calculateTangentSpace()
+{
+	auto tangentVectors = calculateTangentVectors();
+	dprintf("m_normals.size:%llu,tangentVectors.size():%llu\n", m_normals.size(), tangentVectors.size());
+	assert(m_normals.size() == tangentVectors.size());
+	m_tangentSpaceTransformationMats.resize(tangentVectors.size(), glm::mat3(0.0f));
+	for (size_t i = 0;i < tangentVectors.size();i++)
+	{
+		m_tangentSpaceTransformationMats[i] = inverse(glm::mat3(tangentVectors[i].first, tangentVectors[i].second, m_normals[i]));
+	}
+}
+
+vector<pair<vec3, vec3>> Shape::calculateTangentVectors()
+{
+	vector<pair<vec3, vec3>> tangentVectors;
+	dprintf("m_texture.size():%llu,m_vertices.size():%llu,m_normals.size():%llu\n", m_textures.size(), m_vertices.size(), m_normals.size());
+	assert(m_textures.size() == m_vertices.size());
+	assert(m_vertices.size() == m_normals.size());
+	tangentVectors.resize(m_normals.size(), pair<vec3, vec3>(vec3(0.0f), vec3(0.0f)));
+	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg, NumPointsPerTriangle))
+	{
+		auto TB = calculateTBMatrix(beg);
+		vec3 T(TB[0].x, TB[0].y, TB[0].z);
+		vec3 B(TB[1].x, TB[1].y, TB[1].z);
+		tangentVectors[beg[0]].first += T;
+		tangentVectors[beg[1]].first += T;
+		tangentVectors[beg[2]].first += T;
+		tangentVectors[beg[0]].second += B;
+		tangentVectors[beg[1]].second += B;
+		tangentVectors[beg[2]].second += B;
+	}
+
+	for (auto& vecs : tangentVectors)
+	{
+		vecs.first = normalize(vecs.first);
+		vecs.second = normalize(vecs.second);
+	}
+	return tangentVectors;
 }
 
 tuple<float, float, float> Shape::getMaxXYZ() const
@@ -126,20 +230,21 @@ void Shape::unitize()
 	auto maxPos = getMaxXYZ();
 	auto minPos = getMinXYZ();
 
-	printf("max:\nx: %f, y: %f, z: %f\n", get<0>(maxPos), get<1>(maxPos), get<2>(maxPos));
-	printf("min:\nx: %f, y: %f, z: %f\n", get<0>(minPos), get<1>(minPos), get<2>(minPos));
+	dprintf("max:\nx: %f, y: %f, z: %f\n", get<0>(maxPos), get<1>(maxPos), get<2>(maxPos));
+	dprintf("min:\nx: %f, y: %f, z: %f\n", get<0>(minPos), get<1>(minPos), get<2>(minPos));
 
 	float largestAxis = getLargestAxisValue(maxPos, minPos);
-	glm::vec3 offsetFromCenter = getOffsetFromCenter(maxPos, minPos);
+	vec3 offsetFromCenter = getOffsetFromCenter(maxPos, minPos);
 	shiftShape(offsetFromCenter);
 	float scale_factor = 2.0f / largestAxis;
 
-	printf("scale_factor: %f\n", scale_factor);
+	dprintf("scale_factor: %f\n", scale_factor);
 
 	scaleShape(scale_factor);
 }
 
 float Shape::getLargestAxisValue(const tuple<float, float, float> maxXYZ, const tuple<float, float, float> minXYZ) const
+
 {
 	XYZ axis;
 	float x = get<0>(maxXYZ) - get<0>(minXYZ);
@@ -147,6 +252,7 @@ float Shape::getLargestAxisValue(const tuple<float, float, float> maxXYZ, const 
 	float z = get<2>(maxXYZ) - get<2>(minXYZ);
 	array<float, 3> tmp{ x,y,z };
 	auto result = max_element(tmp.begin(), tmp.end());
+#ifndef NDEBUG
 	auto largestAxisIndex = distance(tmp.begin(), result);
 	if (largestAxisIndex == 0)
 	{
@@ -161,15 +267,16 @@ float Shape::getLargestAxisValue(const tuple<float, float, float> maxXYZ, const 
 		axis = Z;
 	}
 	std::cout << "Largest axis is " << axis << " with length of " << *result << "." << std::endl;
+#endif
 	return *result;
 }
 
-glm::vec3 Shape::getOffsetFromCenter(const tuple<float, float, float> maxXYZ, const tuple<float, float, float> minXYZ) const
+vec3 Shape::getOffsetFromCenter(const tuple<float, float, float> maxXYZ, const tuple<float, float, float> minXYZ) const
 {
 	float x = (get<0>(maxXYZ) + get<0>(minXYZ)) / 2.0f;
 	float y = (get<1>(maxXYZ) + get<1>(minXYZ)) / 2.0f;
 	float z = (get<2>(maxXYZ) + get<2>(minXYZ)) / 2.0f;
-	return glm::vec3(x, y, z);
+	return vec3(x, y, z);
 }
 
 std::ostream& operator<<(std::ostream& out, XYZ xyz)

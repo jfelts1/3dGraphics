@@ -9,6 +9,7 @@ using glm::vec3;
 using std::stringstream;
 using std::ifstream;
 using std::array;
+using glm::vec2;
 
 objLoader::objLoader(const string& filepath)
 {
@@ -74,9 +75,9 @@ vector<vec3> objLoader::getNormals()const
     return ret;
 }
 
-vector<float> objLoader::getTextures()const
+vector<vec2> objLoader::getTextures()const
 {
-    vector<float> ret;
+    vector<vec2> ret;
 	auto texStr = "vt ";
 	auto texStrLen = string(texStr).size();
 	auto pos = m_data.find(texStr);
@@ -88,8 +89,7 @@ vector<float> objLoader::getTextures()const
 		tmp >> x;
 		tmp >> y;
         //printf("[TEX] x:%f, y:%f\n", x, y);
-		ret.emplace_back(x);
-		ret.emplace_back(y);
+		ret.emplace_back(vec2(x,y));
 		pos = m_data.find(texStr, pos + 1);
 		pos2 = m_data.find("\n", pos);
 	}

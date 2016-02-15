@@ -51,8 +51,7 @@ GLint  time_loc;
 
 
 void Initialize();
-void initSphereModel();
-void display(void);
+void Display(void);
 void makeIdentity();
 void Reshape(int width, int height);
 void glutMouse(int button, int state, int x, int y);
@@ -139,8 +138,8 @@ void Initialize(void){
 	
 	texIDOne = loadTexture("test3.dds");
 	glUniform1i(glGetUniformLocation(program, "Tex1"), 0);
-	//texIDTwo = loadTexture("test3.dds");
-	//glUniform1i(glGetUniformLocation(program, "Tex2"), 1);
+	texIDTwo = loadTexture("NormalMap.bmp");
+	glUniform1i(glGetUniformLocation(program, "NormalMap"), 1);
     //time_loc = glGetUniformLocation(program, "time");
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
@@ -181,7 +180,7 @@ void setMatrices(){
 	normalmatrix = mat3(1.0f);
 	mvp = mat4(1.0f);
 	model_view = view*model;
-	normalmatrix = mat3(vec3(model_view[0]), vec3(model_view[1]), vec3(model_view[2]));
+	normalmatrix = mat3(transpose(inverse(model_view)));//mat3(vec3(model_view[0]), vec3(model_view[1]), vec3(model_view[2]));
 	projection = perspective(70.0f, aspect, 0.3f, 100.0f);
 	mvp = projection*model_view;
 
