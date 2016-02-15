@@ -3,6 +3,7 @@
 in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
+in mat3 tangentSpace;
 
 uniform sampler2D Tex1;
 uniform sampler2D NormalMap;
@@ -24,7 +25,7 @@ uniform MaterialInfo Material;
 layout( location = 0 ) out vec4 FragColor;
 
 void phongModel( vec3 pos, vec3 norm, out vec3 ambAndDiff, out vec3 spec ) {
-    vec3 s = normalize(vec3(Light.Position) - pos);
+    vec3 s = normalize(vec3(Light.Position) - pos)*tangentSpace;
     vec3 v = normalize(-pos.xyz);
     vec3 r = reflect( -s, norm );
     vec3 ambient = Light.Intensity * Material.Ka;
@@ -40,6 +41,8 @@ void phongModel( vec3 pos, vec3 norm, out vec3 ambAndDiff, out vec3 spec ) {
 void main() {
     vec3 ambAndDiff, spec;
     vec4 texColor = texture( Tex1, TexCoord );
-    phongModel( Position, Normal, ambAndDiff, spec );
+    vec4 normal = texture(NormalMap,TexCoord);
+    normal = vec4(normalize(vec3(2.0*normal-1.0)),1.0f);
+    phongModel( Position, normal.xyz, ambAndDiff, spec );
     FragColor = (vec4( ambAndDiff, 1.0 ) * texColor) + vec4(spec,1.0);
 }

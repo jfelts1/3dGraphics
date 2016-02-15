@@ -46,7 +46,9 @@ private:
     std::vector<glm::vec3> m_vertices;
     std::vector<glm::vec3> m_normals;
     std::vector<glm::vec2> m_textures;
-	std::vector<glm::mat3> m_tangentSpaceTransformationMats;
+	std::vector<glm::vec4> m_tangentVectorsT;
+	std::vector<glm::vec4> m_tangentVectorsB;
+	//std::vector<glm::mat3> m_tangentSpaceTransformationMats;
     std::vector<GLuint> m_indices;
     GLuint m_vao;
 

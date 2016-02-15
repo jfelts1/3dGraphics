@@ -18,6 +18,7 @@ using std::array;
 using std::vector;
 using glm::vec3;
 using glm::vec2;
+using glm::vec4;
 using std::pair;
 
 Shape::Shape(const vector<vec3>& vertices,
@@ -82,8 +83,8 @@ void Shape::initShapeRender()
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 
-	unsigned int handle[4];
-	glGenBuffers(4, handle);
+	unsigned int handle[5];
+	glGenBuffers(5, handle);
 
 	glBindBuffer(GL_ARRAY_BUFFER, handle[0]);
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(decltype(m_vertices[0])), m_vertices.data(), GL_STATIC_DRAW);
@@ -100,7 +101,12 @@ void Shape::initShapeRender()
 	glVertexAttribPointer(static_cast<GLuint>(2), 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(2);  // texture coords
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle[3]);
+	glBindBuffer(GL_ARRAY_BUFFER, handle[3]);
+	glBufferData(GL_ARRAY_BUFFER, m_tangentVectorsT.size() * sizeof(decltype(m_tangentVectorsT[0])), m_tangentVectorsT.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(static_cast<GLuint>(3), 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(3);  // vertex tangent
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle[4]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(decltype(m_indices[0])), m_indices.data(), GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
@@ -137,13 +143,45 @@ void Shape::calculateNormals()
 
 void Shape::calculateTangentSpace()
 {
-	auto tangentVectors = calculateTangentVectors();
+	/*auto tangentVectors = calculateTangentVectors();
 	dprintf("m_normals.size:%llu,tangentVectors.size():%llu\n", m_normals.size(), tangentVectors.size());
 	assert(m_normals.size() == tangentVectors.size());
 	m_tangentSpaceTransformationMats.resize(tangentVectors.size(), glm::mat3(0.0f));
 	for (size_t i = 0;i < tangentVectors.size();i++)
-	{
+	{		
 		m_tangentSpaceTransformationMats[i] = inverse(glm::mat3(tangentVectors[i].first, tangentVectors[i].second, m_normals[i]));
+	}*/
+	//vector<pair<vec3, vec3>> tangentVectors;
+	dprintf("m_texture.size():%llu,m_vertices.size():%llu,m_normals.size():%llu\n", m_textures.size(), m_vertices.size(), m_normals.size());
+	assert(m_textures.size() == m_vertices.size());
+	assert(m_vertices.size() == m_normals.size());
+	m_tangentVectorsT.resize(m_normals.size(), vec4(0.0f));
+	m_tangentVectorsB.resize(m_normals.size(), vec4(0.0f));
+	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg, NumPointsPerTriangle))
+	{
+		auto TB = calculateTBMatrix(beg);
+		vec4 T(TB[0].x, TB[0].y, TB[0].z,0.0f);
+		vec4 B(TB[1].x, TB[1].y, TB[1].z,0.0f);
+		m_tangentVectorsT[beg[0]] += T;
+		m_tangentVectorsT[beg[1]] += T;
+		m_tangentVectorsT[beg[2]] += T;
+		m_tangentVectorsB[beg[0]] += B;
+		m_tangentVectorsB[beg[1]] += B;
+		m_tangentVectorsB[beg[2]] += B;
+	}
+
+	for (auto& vec : m_tangentVectorsT)
+	{
+		vec = normalize(vec);		
+	}
+	for (auto& vec : m_tangentVectorsB)
+	{
+		vec = normalize(vec);
+	}
+	for (size_t i = 0;i < m_tangentVectorsT.size();i++)
+	{
+		m_tangentVectorsT[i] = vec4(vec3(m_tangentVectorsT[i]) - dot(m_normals[i], vec3(m_tangentVectorsT[i]))*m_normals[i],0.0f);
+		m_tangentVectorsT[i].w = dot(cross(m_normals[i], vec3(m_tangentVectorsT[i])), vec3(m_tangentVectorsB[i]))<0.0f ? -1.0f : 1.0f;
 	}
 }
 
@@ -244,15 +282,14 @@ void Shape::unitize()
 }
 
 float Shape::getLargestAxisValue(const tuple<float, float, float> maxXYZ, const tuple<float, float, float> minXYZ) const
-
 {
-	XYZ axis;
 	float x = get<0>(maxXYZ) - get<0>(minXYZ);
 	float y = get<1>(maxXYZ) - get<1>(minXYZ);
 	float z = get<2>(maxXYZ) - get<2>(minXYZ);
 	array<float, 3> tmp{ x,y,z };
 	auto result = max_element(tmp.begin(), tmp.end());
 #ifndef NDEBUG
+	XYZ axis;
 	auto largestAxisIndex = distance(tmp.begin(), result);
 	if (largestAxisIndex == 0)
 	{

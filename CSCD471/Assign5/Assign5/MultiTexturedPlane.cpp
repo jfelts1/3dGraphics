@@ -194,7 +194,6 @@ void setMatrices(){
 
 void Reshape(int width, int height)
 {
-
 	gViewportWidth = width;
 	gViewportHeight = height;
 	glViewport(0, 0, width, height);
