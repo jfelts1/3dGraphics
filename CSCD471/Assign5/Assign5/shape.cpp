@@ -3,10 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <vector>
-#include <cassert>
 #include "shape.h"
 #include "Debug.h"
-
 
 using std::tuple;
 using std::numeric_limits;
