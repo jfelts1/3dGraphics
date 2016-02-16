@@ -18,6 +18,10 @@ using glm::vec3;
 using glm::vec2;
 using glm::vec4;
 using std::pair;
+using glm::normalize;
+using glm::cross;
+using glm::dot;
+using glm::triangleNormal;
 
 Shape::Shape(const vector<vec3>& vertices,
 	const vector<vec3>& normals,
