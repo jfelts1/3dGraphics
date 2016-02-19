@@ -145,15 +145,6 @@ void Shape::calculateNormals()
 
 void Shape::calculateTangentSpace()
 {
-	/*auto tangentVectors = calculateTangentVectors();
-	dprintf("m_normals.size:%llu,tangentVectors.size():%llu\n", m_normals.size(), tangentVectors.size());
-	assert(m_normals.size() == tangentVectors.size());
-	m_tangentSpaceTransformationMats.resize(tangentVectors.size(), glm::mat3(0.0f));
-	for (size_t i = 0;i < tangentVectors.size();i++)
-	{		
-		m_tangentSpaceTransformationMats[i] = inverse(glm::mat3(tangentVectors[i].first, tangentVectors[i].second, m_normals[i]));
-	}*/
-	//vector<pair<vec3, vec3>> tangentVectors;
 	dprintf("m_texture.size():%llu,m_vertices.size():%llu,m_normals.size():%llu\n", m_textures.size(), m_vertices.size(), m_normals.size());
 	assert(m_textures.size() == m_vertices.size());
 	assert(m_vertices.size() == m_normals.size());
@@ -181,59 +172,15 @@ void Shape::calculateTangentSpace()
         auto NTDot = dot(N, vec3(T));
         auto NTCross = cross(N,vec3(T));
         auto NTCrossBDot = dot(NTCross,vec3(B));
-        m_tangentVectorsT[i] = vec4(vec3(T)-NTDot*vec3(N),0.0f);
+        m_tangentVectorsT[i] = normalize(vec4(vec3(T)-NTDot*vec3(N),0.0f));
         m_tangentVectorsT[i].w = (NTCrossBDot<0.0f)?-1.0f:1.0f;
     }
 
-    /*for(size_t i =0;i<m_tangentVectorsB.size();i++)
-    {
-        vec4 dot1(vec3(m_tangentVectorsB[i])-dot(m_normals[i],vec3(m_tangentVectorsB[i]))*m_normals[i],0.0f);
-        vec4 dot2(dot(vec3(m_tangentVectorsT[i]),vec3(m_tangentVectorsB[i]))*vec3(m_tangentVectorsT[i]/(m_tangentVectorsT[i]*m_tangentVectorsT[i])),0.0f);
-        m_tangentVectorsB[i] = dot1-dot2;
-    }*/
-
-    /*for (auto& vec : m_tangentVectorsT)
-	{
-		vec = normalize(vec);		
-	}
-	for (auto& vec : m_tangentVectorsB)
-	{
-		vec = normalize(vec);
-    }*/
-    for(auto& vec:m_tangentVectorsT)
+   /* for(auto& vec:m_tangentVectorsT)
     {
         dprintf("m_tangentVectorT:{%f,%f,%f,%f}\n",vec[0],vec[1],vec[2],vec[3]);
-
-    }
+    }*/
 }
-
-/*vector<pair<vec3, vec3>> Shape::calculateTangentVectors()
-{
-	vector<pair<vec3, vec3>> tangentVectors;
-	dprintf("m_texture.size():%llu,m_vertices.size():%llu,m_normals.size():%llu\n", m_textures.size(), m_vertices.size(), m_normals.size());
-	assert(m_textures.size() == m_vertices.size());
-	assert(m_vertices.size() == m_normals.size());
-	tangentVectors.resize(m_normals.size(), pair<vec3, vec3>(vec3(0.0f), vec3(0.0f)));
-	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg, NumPointsPerTriangle))
-	{
-		auto TB = calculateTBMatrix(beg);
-		vec3 T(TB[0].x, TB[0].y, TB[0].z);
-		vec3 B(TB[1].x, TB[1].y, TB[1].z);
-		tangentVectors[beg[0]].first += T;
-		tangentVectors[beg[1]].first += T;
-		tangentVectors[beg[2]].first += T;
-		tangentVectors[beg[0]].second += B;
-		tangentVectors[beg[1]].second += B;
-		tangentVectors[beg[2]].second += B;
-	}
-
-	for (auto& vecs : tangentVectors)
-	{
-		vecs.first = normalize(vecs.first);
-		vecs.second = normalize(vecs.second);
-	}
-	return tangentVectors;
-}*/
 
 tuple<float, float, float> Shape::getMaxXYZ() const
 {

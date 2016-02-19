@@ -7,7 +7,7 @@
 #include <glm/gtx/normal.hpp>
 #define NumPointsPerTriangle 3
 static_assert(NumPointsPerTriangle == 3, "Triangles must have 3 points.");
-#define MinValueAllowed 0.000001
+#define MinValueAllowed 0.0000001f
 
 
 enum XYZ
@@ -66,14 +66,13 @@ private:
 
 	void calculateNormals();	
 	void calculateTangentSpace();
-	std::vector<std::pair<glm::vec3, glm::vec3>> calculateTangentVectors();
 
 	template<typename iter>
 	auto calculateTBMatrix(iter faceStart)
 	{
         auto i1 = faceStart[0];
         auto i2 = faceStart[1];
-        auto i3 = faceStart[3];
+        auto i3 = faceStart[2];
         auto p0 = m_vertices[i1];
         auto p1 = m_vertices[i2];
         auto p2 = m_vertices[i3];
@@ -95,17 +94,17 @@ private:
         //printf("s1:%0.5f s2: %0.5f t1:%0.5f t2:%0.5f s1*t2:%0f s2*t1:%f\n",s1,s2,t1,t2,s1*t2, s2*t1);
         auto tmp = (s1*t2 - s2*t1);
         //printf("tmp:%f\n",tmp);
-        //avoid divide by zero
-        if(abs(tmp)<MinValueAllowed)
+        //avoid values that would overflow floats
+        if(fabs(tmp)<MinValueAllowed)
         {
-            if(tmp >0)
+            if(tmp > 0)
                 tmp = MinValueAllowed;
             else
                 tmp = -MinValueAllowed;
         }
         auto inv = 1.0f / tmp;
         //printf("inv:%f\n",inv);
-        return inv*(glm::mat2x3(Q1.x, Q1.y, Q1.z, Q2.x, Q2.y, Q2.z)*glm::mat2(t2, -s2, -t1, s1));
+        return inv*(glm::mat2x3(Q1.x, Q2.x, Q1.y, Q2.y, Q1.z, Q2.z)*glm::mat2(t2, -s2, -t1, s1));
 	}
 
 };
