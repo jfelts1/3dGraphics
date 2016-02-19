@@ -9,13 +9,12 @@ struct LightInfo {
   vec4 Position;  // Light position in eye coords.
   vec3 Intensity; // A,D,S intensity
 };
-uniform LightInfo LightI;
+uniform LightInfo Light;
 
 out vec3 Position;
 out vec3 Normal;
 out vec2 TexCoord;
 out vec3 viewDir;
-out LightInfo Light;
 
 uniform mat4 ModelViewMatrix;
 uniform mat3 NormalMatrix;

@@ -129,8 +129,8 @@ void Initialize(void){
 
     GLfloat shininess = 100.0f;
 
-    glUniform3fv(glGetUniformLocation(program, "LightI.Intensity"), 1, reinterpret_cast<GLfloat*>(&light_intensity));
-    glUniform4fv(glGetUniformLocation(program, "LightI.Position"), 1, reinterpret_cast<GLfloat*>(&light_position));
+    glUniform3fv(glGetUniformLocation(program, "Light.Intensity"), 1, reinterpret_cast<GLfloat*>(&light_intensity));
+    glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&light_position));
 	glUniform3fv(glGetUniformLocation(program, "Material.Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
 	glUniform3fv(glGetUniformLocation(program, "Material.Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
 	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));

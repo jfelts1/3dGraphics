@@ -4,12 +4,12 @@ struct LightInfo {
   vec4 Position;  // Light position in eye coords.
   vec3 Intensity; // A,D,S intensity
 };
+uniform LightInfo Light;
 
 in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
 in vec3 viewDir;
-in LightInfo Light;
 
 uniform sampler2D Tex1;
 uniform sampler2D NormalMap;
