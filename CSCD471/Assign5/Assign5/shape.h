@@ -70,16 +70,19 @@ private:
 	template<typename iter>
 	auto calculateTBMatrix(iter faceStart)
 	{
-		auto p0 = m_vertices[faceStart[0]];
-		auto p1 = m_vertices[faceStart[1]];
-		auto p2 = m_vertices[faceStart[2]];
+        auto i1 = faceStart[0];
+        auto i2 = faceStart[1];
+        auto i3 = faceStart[3];
+        auto p0 = m_vertices[i1];
+        auto p1 = m_vertices[i2];
+        auto p2 = m_vertices[i3];
 
-		auto u0 = m_textures[faceStart[0]].x;
-		auto u1 = m_textures[faceStart[1]].x;
-		auto u2 = m_textures[faceStart[2]].x;
-		auto v0 = m_textures[faceStart[0]].y;
-		auto v1 = m_textures[faceStart[1]].y;
-		auto v2 = m_textures[faceStart[2]].y;
+        auto u0 = m_textures[i1].x;
+        auto u1 = m_textures[i2].x;
+        auto u2 = m_textures[i3].x;
+        auto v0 = m_textures[i1].y;
+        auto v1 = m_textures[i2].y;
+        auto v2 = m_textures[i3].y;
 
 		glm::vec3 Q1(p1 - p0);
 		glm::vec3 Q2(p2 - p0);

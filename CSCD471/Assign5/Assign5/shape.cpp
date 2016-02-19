@@ -172,6 +172,18 @@ void Shape::calculateTangentSpace()
 		m_tangentVectorsB[beg[2]] += B;
 	}
 
+    for (size_t i = 0;i < m_tangentVectorsT.size();i++)
+    {
+        m_tangentVectorsT[i] = vec4(vec3(m_tangentVectorsT[i]) - dot(m_normals[i], vec3(m_tangentVectorsT[i]))*m_normals[i],0.0f);
+        //m_tangentVectorsT[i].w = dot(cross(m_normals[i], vec3(m_tangentVectorsT[i])), vec3(m_tangentVectorsB[i]))<0.0f ? -1.0f : 1.0f;
+    }
+    for(size_t i =0;i<m_tangentVectorsB.size();i++)
+    {
+        vec4 dot1(vec3(m_tangentVectorsB[i])-dot(m_normals[i],vec3(m_tangentVectorsB[i]))*m_normals[i],0.0f);
+        vec4 dot2(dot(vec3(m_tangentVectorsT[i]),vec3(m_tangentVectorsB[i]))*vec3(m_tangentVectorsT[i]/(m_tangentVectorsT[i]*m_tangentVectorsT[i])),0.0f);
+        m_tangentVectorsB[i] = dot1-dot2;
+    }
+
 	for (auto& vec : m_tangentVectorsT)
 	{
 		vec = normalize(vec);		
@@ -180,11 +192,7 @@ void Shape::calculateTangentSpace()
 	{
 		vec = normalize(vec);
 	}
-	for (size_t i = 0;i < m_tangentVectorsT.size();i++)
-	{
-		m_tangentVectorsT[i] = vec4(vec3(m_tangentVectorsT[i]) - dot(m_normals[i], vec3(m_tangentVectorsT[i]))*m_normals[i],0.0f);
-		m_tangentVectorsT[i].w = dot(cross(m_normals[i], vec3(m_tangentVectorsT[i])), vec3(m_tangentVectorsB[i]))<0.0f ? -1.0f : 1.0f;
-	}
+
 }
 
 vector<pair<vec3, vec3>> Shape::calculateTangentVectors()
