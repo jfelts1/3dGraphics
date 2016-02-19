@@ -174,8 +174,14 @@ void Shape::calculateTangentSpace()
 
     for (size_t i = 0;i < m_tangentVectorsT.size();i++)
     {
-        m_tangentVectorsT[i] = vec4(vec3(m_tangentVectorsT[i]) - dot(m_normals[i], vec3(m_tangentVectorsT[i]))*m_normals[i],0.0f);
-        m_tangentVectorsT[i].w = dot(cross(m_normals[i], vec3(m_tangentVectorsT[i])), vec3(m_tangentVectorsB[i]))<0.0f ? -1.0f : 1.0f;
+        auto NTDot = dot(m_normals[i], vec3(m_tangentVectorsT[i]));
+        auto T = m_tangentVectorsT[i];
+        auto N = m_normals[i];
+        auto B = m_tangentVectorsB[i];
+        auto NTCross = cross(N,vec3(T));
+        auto NTCrossBDot = dot(NTCross,vec3(B));
+        m_tangentVectorsT[i] = vec4(vec3(T)-NTDot*vec3(N),0.0f);
+        m_tangentVectorsT[i].w = (NTCrossBDot<0.0f)?-1.0f:1.0f;
     }
     /*for(size_t i =0;i<m_tangentVectorsB.size();i++)
     {
