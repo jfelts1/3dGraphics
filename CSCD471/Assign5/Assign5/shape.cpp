@@ -192,19 +192,19 @@ void Shape::calculateTangentSpace()
         m_tangentVectorsB[i] = dot1-dot2;
     }*/
 
-    for (auto& vec : m_tangentVectorsT)
+    /*for (auto& vec : m_tangentVectorsT)
 	{
 		vec = normalize(vec);		
 	}
 	for (auto& vec : m_tangentVectorsB)
 	{
 		vec = normalize(vec);
-    }
-    /*for(auto& vec:m_tangentVectorsT)
+    }*/
+    for(auto& vec:m_tangentVectorsT)
     {
         dprintf("m_tangentVectorT:{%f,%f,%f,%f}\n",vec[0],vec[1],vec[2],vec[3]);
 
-    }*/
+    }
 }
 
 /*vector<pair<vec3, vec3>> Shape::calculateTangentVectors()

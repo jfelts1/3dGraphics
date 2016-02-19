@@ -98,7 +98,10 @@ private:
         //avoid divide by zero
         if(abs(tmp)<MinValueAllowed)
         {
-            tmp = MinValueAllowed;
+            if(tmp >0)
+                tmp = MinValueAllowed;
+            else
+                tmp = -MinValueAllowed;
         }
         auto inv = 1.0f / tmp;
         //printf("inv:%f\n",inv);
