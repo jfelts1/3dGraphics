@@ -180,8 +180,7 @@ void setMatrices(){
 	normalmatrix = mat3(1.0f);
 	mvp = mat4(1.0f);
 	model_view = view*model;
-    normalmatrix = mat3(vec3(model_view[0]), vec3(model_view[1]), vec3(model_view[2]));
-    normalmatrix = mat3(transpose(inverse(normalmatrix)));
+    normalmatrix = mat3(transpose(inverse(model_view)));
 	projection = perspective(70.0f, aspect, 0.3f, 100.0f);
 	mvp = projection*model_view;
 
