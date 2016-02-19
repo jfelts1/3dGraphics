@@ -1,18 +1,18 @@
 #version 330
 
-in vec3 Position;
-in vec3 Normal;
-in vec2 TexCoord;
-in mat3 tangentSpace;
-
-uniform sampler2D Tex1;
-uniform sampler2D NormalMap;
-
 struct LightInfo {
   vec4 Position;  // Light position in eye coords.
   vec3 Intensity; // A,D,S intensity
 };
-uniform LightInfo Light;
+
+in vec3 Position;
+in vec3 Normal;
+in vec2 TexCoord;
+in vec3 viewDir;
+in LightInfo Light;
+
+uniform sampler2D Tex1;
+uniform sampler2D NormalMap;
 
 struct MaterialInfo {
   vec3 Ka;            // Ambient reflectivity
@@ -25,7 +25,7 @@ uniform MaterialInfo Material;
 layout( location = 0 ) out vec4 FragColor;
 
 void phongModel( vec3 pos, vec3 norm, out vec3 ambAndDiff, out vec3 spec ) {
-    vec3 s = normalize(vec3(Light.Position) - pos)*tangentSpace;
+    vec3 s = viewDir;
     vec3 v = normalize(-pos.xyz);
     vec3 r = reflect( -s, norm );
     vec3 ambient = Light.Intensity * Material.Ka;

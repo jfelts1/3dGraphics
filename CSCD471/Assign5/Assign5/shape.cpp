@@ -162,8 +162,8 @@ void Shape::calculateTangentSpace()
 	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg, NumPointsPerTriangle))
 	{
 		auto TB = calculateTBMatrix(beg);
-		vec4 T(TB[0].x, TB[0].y, TB[0].z,0.0f);
-		vec4 B(TB[1].x, TB[1].y, TB[1].z,0.0f);
+        vec4 T(TB[0].x, TB[0].y, TB[0].z,0.0f);
+        vec4 B(TB[1].x, TB[1].y, TB[1].z,0.0f);
 		m_tangentVectorsT[beg[0]] += T;
 		m_tangentVectorsT[beg[1]] += T;
 		m_tangentVectorsT[beg[2]] += T;
@@ -175,14 +175,14 @@ void Shape::calculateTangentSpace()
     for (size_t i = 0;i < m_tangentVectorsT.size();i++)
     {
         m_tangentVectorsT[i] = vec4(vec3(m_tangentVectorsT[i]) - dot(m_normals[i], vec3(m_tangentVectorsT[i]))*m_normals[i],0.0f);
-        //m_tangentVectorsT[i].w = dot(cross(m_normals[i], vec3(m_tangentVectorsT[i])), vec3(m_tangentVectorsB[i]))<0.0f ? -1.0f : 1.0f;
+        m_tangentVectorsT[i].w = dot(cross(m_normals[i], vec3(m_tangentVectorsT[i])), vec3(m_tangentVectorsB[i]))<0.0f ? -1.0f : 1.0f;
     }
-    for(size_t i =0;i<m_tangentVectorsB.size();i++)
+    /*for(size_t i =0;i<m_tangentVectorsB.size();i++)
     {
         vec4 dot1(vec3(m_tangentVectorsB[i])-dot(m_normals[i],vec3(m_tangentVectorsB[i]))*m_normals[i],0.0f);
         vec4 dot2(dot(vec3(m_tangentVectorsT[i]),vec3(m_tangentVectorsB[i]))*vec3(m_tangentVectorsT[i]/(m_tangentVectorsT[i]*m_tangentVectorsT[i])),0.0f);
         m_tangentVectorsB[i] = dot1-dot2;
-    }
+    }*/
 
 	for (auto& vec : m_tangentVectorsT)
 	{
@@ -195,7 +195,7 @@ void Shape::calculateTangentSpace()
 
 }
 
-vector<pair<vec3, vec3>> Shape::calculateTangentVectors()
+/*vector<pair<vec3, vec3>> Shape::calculateTangentVectors()
 {
 	vector<pair<vec3, vec3>> tangentVectors;
 	dprintf("m_texture.size():%llu,m_vertices.size():%llu,m_normals.size():%llu\n", m_textures.size(), m_vertices.size(), m_normals.size());
@@ -221,7 +221,7 @@ vector<pair<vec3, vec3>> Shape::calculateTangentVectors()
 		vecs.second = normalize(vecs.second);
 	}
 	return tangentVectors;
-}
+}*/
 
 tuple<float, float, float> Shape::getMaxXYZ() const
 {

@@ -90,7 +90,7 @@ private:
 		auto s2 = u2 - u0;
 		auto t1 = v1 - v0;
 		auto t2 = v2 - v0;
-		return 1.0f / (s1*t2 - s2*t1)*(glm::mat2x3(Q1.x, Q2.x, Q1.y, Q2.y, Q1.z, Q2.z)*glm::mat2(t2, -s2, -t1, s1));
+        return 1.0f / (s1*t2 - s2*t1)*(glm::mat2x3(Q1.x, Q2.x, Q1.y, Q2.y, Q1.z, Q2.z)*glm::mat2(t2, -s2, -t1, s1));
 	}
 
 };
