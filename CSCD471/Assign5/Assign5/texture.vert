@@ -15,6 +15,7 @@ out vec3 Position;
 out vec3 Normal;
 out vec2 TexCoord;
 out vec3 viewDir;
+out vec3 lightDir;
 
 uniform mat4 ModelViewMatrix;
 uniform mat3 NormalMatrix;
@@ -35,7 +36,8 @@ void main()
     tang.z,binomal.z,Normal.z);
 
     Position = vec3( ModelViewMatrix * vec4(VertexPosition,1.0) );
-    Position *= tangentSpace;
-    viewDir = normalize(vec3(Light.Position) - Position);
+    //Position *= tangentSpace;
+    viewDir = normalize(vec3(Light.Position) - Position)*tangentSpace;
+    lightDir = normalize(-Position.xyz)*tangentSpace;
     gl_Position = MVP * vec4(VertexPosition,1.0);
 }

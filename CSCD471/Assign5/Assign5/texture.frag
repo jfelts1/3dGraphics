@@ -10,6 +10,7 @@ in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
 in vec3 viewDir;
+in vec3 lightDir;
 
 uniform sampler2D Tex1;
 uniform sampler2D NormalMap;
@@ -26,7 +27,7 @@ layout( location = 0 ) out vec4 FragColor;
 
 void phongModel( vec3 pos, vec3 norm, out vec3 ambAndDiff, out vec3 spec ) {
     vec3 s = viewDir;
-    vec3 v = normalize(-pos.xyz);
+    vec3 v = lightDir;
     vec3 r = reflect( -s, norm );
     vec3 ambient = Light.Intensity * Material.Ka;
     float sDotN = max( dot(s,norm), 0.0 );
