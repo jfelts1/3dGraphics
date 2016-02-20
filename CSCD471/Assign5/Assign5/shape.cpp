@@ -181,7 +181,7 @@ void Shape::calculateTangentSpace()
 
     for(auto& vec:m_tangentVectorsT)
     {
-        //if(std::isnan(vec[0])|| std::isnan(vec[1])||std::isnan(vec[2])||std::isnan(vec[3]))
+        //if(isnan(vec[0])|| isnan(vec[1])||isnan(vec[2])||isnan(vec[3]))
         dprintf("m_tangentVectorT:{%f,%f,%f,%f}\n",vec[0],vec[1],vec[2],vec[3]);
     }
 }

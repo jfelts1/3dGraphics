@@ -71,39 +71,27 @@ private:
 	template<typename iter>
 	auto calculateTBMatrix(iter faceStart)
 	{
-        auto i1 = faceStart[0];
-        auto i2 = faceStart[1];
-        auto i3 = faceStart[2];
-        auto p0 = m_vertices[i1];
-        auto p1 = m_vertices[i2];
-        auto p2 = m_vertices[i3];
+        auto i0 = faceStart[0];
+        auto i1 = faceStart[1];
+        auto i2 = faceStart[2];
+        auto p0 = m_vertices[i0];
+        auto p1 = m_vertices[i1];
+        auto p2 = m_vertices[i2];
 
-        auto u0 = m_textures[i1].x;
-        auto u1 = m_textures[i2].x;
-        auto u2 = m_textures[i3].x;
-        auto v0 = m_textures[i1].y;
-        auto v1 = m_textures[i2].y;
-        auto v2 = m_textures[i3].y;
+        auto u0 = m_textures[i0].x;
+        auto u1 = m_textures[i1].x;
+        auto u2 = m_textures[i2].x;
+        auto v0 = m_textures[i0].y;
+        auto v1 = m_textures[i1].y;
+        auto v2 = m_textures[i2].y;
 
 		glm::vec3 Q1(p1 - p0);
 		glm::vec3 Q2(p2 - p0);
-        //printf("Q1{%.5f,%.5f,%.5f} Q2{%.5f,%.5f,%.5f}\n",Q1[0],Q1[1],Q1[2],Q2[0],Q2[1],Q2[2]);
 		auto s1 = u1 - u0;
 		auto s2 = u2 - u0;
 		auto t1 = v1 - v0;
 		auto t2 = v2 - v0;
-        //printf("s1:%0.5f s2: %0.5f t1:%0.5f t2:%0.5f s1*t2:%0f s2*t1:%f\n",s1,s2,t1,t2,s1*t2, s2*t1);
-        auto tmp = (s1*t2 - s2*t1);
-        //printf("tmp:%f\n",tmp);
-        //avoid values that would overflow floats
-        /*if(fabs(tmp)<MinValueAllowed)
-        {
-            if(tmp > 0)
-                tmp = MinValueAllowed;
-            else
-                tmp = -MinValueAllowed;
-        }*/
-        auto inv = 1.0f / tmp;
+        auto inv = 1.0f / (s1*t2 - s2*t1);
         //printf("inv:%f\n",inv);
         return std::make_pair(glm::vec3(t2*Q1.x-t1*Q2.x,t2*Q1.y-t1*Q2.y,t2*Q1.z-t1*Q2.z)*inv,
                               glm::vec3(s1*Q2.x-s2*Q1.x,s1*Q2.y-s2*Q1.y,s1*Q2.z-s2*Q1.z)*inv);
