@@ -119,7 +119,7 @@ void Shape::commonInitShape(const vec3 position, const float scale_factor)
     unitize();
     scaleShape(scale_factor);
     shiftShape(position);
-	calculateTangentSpace();
+    calculateTangentSpace();
 	initShapeRender();
 }
 
@@ -179,10 +179,11 @@ void Shape::calculateTangentSpace()
         m_tangentVectorsT[i].w = (NTCrossBDot<0.0f)?-1.0f:1.0f;
     }
 
-    /*for(auto& vec:m_tangentVectorsT)
+    for(auto& vec:m_tangentVectorsT)
     {
+        //if(std::isnan(vec[0])|| std::isnan(vec[1])||std::isnan(vec[2])||std::isnan(vec[3]))
         dprintf("m_tangentVectorT:{%f,%f,%f,%f}\n",vec[0],vec[1],vec[2],vec[3]);
-    }*/
+    }
 }
 
 tuple<float, float, float> Shape::getMaxXYZ() const

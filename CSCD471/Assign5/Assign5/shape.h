@@ -96,13 +96,13 @@ private:
         auto tmp = (s1*t2 - s2*t1);
         //printf("tmp:%f\n",tmp);
         //avoid values that would overflow floats
-        if(fabs(tmp)<MinValueAllowed)
+        /*if(fabs(tmp)<MinValueAllowed)
         {
             if(tmp > 0)
                 tmp = MinValueAllowed;
             else
                 tmp = -MinValueAllowed;
-        }
+        }*/
         auto inv = 1.0f / tmp;
         //printf("inv:%f\n",inv);
         return std::make_pair(glm::vec3(t2*Q1.x-t1*Q2.x,t2*Q1.y-t1*Q2.y,t2*Q1.z-t1*Q2.z)*inv,
