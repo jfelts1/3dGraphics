@@ -37,7 +37,7 @@ void main()
 
     Position = vec3( ModelViewMatrix * vec4(VertexPosition,1.0) );
     //Position *= tangentSpace;
-    viewDir = normalize(vec3(Light.Position) - Position)*tangentSpace;
-    lightDir = normalize(-Position.xyz)*tangentSpace;
+    viewDir = normalize(-Position.xyz)*tangentSpace;
+    lightDir = normalize(vec3(Light.Position) - Position)*tangentSpace;
     gl_Position = MVP * vec4(VertexPosition,1.0);
 }
