@@ -19,7 +19,6 @@
 #include "shape.h"
 #include "objloader.h"
 
-
 using namespace glm;
 using namespace std;
 
@@ -204,7 +203,7 @@ void Reshape(int width, int height)
 /*****************************************************************************/
 
 // ReSharper disable CppParameterNeverUsed
-#ifdef WIN32
+#ifdef _WIN32
 #pragma warning(push)
 #pragma warning(disable: 4100)
 #endif
@@ -227,7 +226,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	glutPostRedisplay();
 }
-#ifdef WIN32
+#ifdef _WIN32
 #pragma warning(pop)
 #endif
 #ifdef __GNUC__
