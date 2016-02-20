@@ -177,8 +177,8 @@ void Display(void)
 /******************************************************************************/
 void setMatrices(){
 	model *= transformation_matrix;
-	normalmatrix = mat3(1.0f);
-	mvp = mat4(1.0f);
+    normalmatrix = mat3(1.0f);
+    mvp = mat4(1.0f);
 	model_view = view*model;
     normalmatrix = mat3(transpose(inverse(model_view)));
 	projection = perspective(70.0f, aspect, 0.3f, 100.0f);

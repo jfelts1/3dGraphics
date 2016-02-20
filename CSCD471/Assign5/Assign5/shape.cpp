@@ -116,9 +116,9 @@ void Shape::initShapeRender()
 
 void Shape::commonInitShape(const vec3 position, const float scale_factor)
 {
-	unitize();
-	scaleShape(scale_factor);
-	shiftShape(position);
+    unitize();
+    scaleShape(scale_factor);
+    shiftShape(position);
 	calculateTangentSpace();
 	initShapeRender();
 }
@@ -153,8 +153,10 @@ void Shape::calculateTangentSpace()
 	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg, NumPointsPerTriangle))
 	{
 		auto TB = calculateTBMatrix(beg);
-        vec4 T(TB[0].x, TB[0].y, TB[0].z,0.0f);
-        vec4 B(TB[1].x, TB[1].y, TB[1].z,0.0f);
+        //vec4 T(TB[0].x, TB[0].y, TB[0].z,0.0f);
+        //vec4 B(TB[1].x, TB[1].y, TB[1].z,0.0f);
+        vec4 T(TB.first,0.0f);
+        vec4 B(TB.second,0.0f);
         //dprintf("T{%f,%f,%f,%f}\n",T[0],T[1],T[2],T[3]);
 		m_tangentVectorsT[beg[0]] += T;
 		m_tangentVectorsT[beg[1]] += T;
@@ -172,11 +174,12 @@ void Shape::calculateTangentSpace()
         auto NTDot = dot(N, vec3(T));
         auto NTCross = cross(N,vec3(T));
         auto NTCrossBDot = dot(NTCross,vec3(B));
+
         m_tangentVectorsT[i] = normalize(vec4(vec3(T)-NTDot*vec3(N),0.0f));
         m_tangentVectorsT[i].w = (NTCrossBDot<0.0f)?-1.0f:1.0f;
     }
 
-   /* for(auto& vec:m_tangentVectorsT)
+    /*for(auto& vec:m_tangentVectorsT)
     {
         dprintf("m_tangentVectorT:{%f,%f,%f,%f}\n",vec[0],vec[1],vec[2],vec[3]);
     }*/
