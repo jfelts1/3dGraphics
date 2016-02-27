@@ -50,7 +50,6 @@ private:
     std::vector<glm::vec2> m_textures;
 	std::vector<glm::vec4> m_tangentVectorsT;
 	std::vector<glm::vec4> m_tangentVectorsB;
-	//std::vector<glm::mat3> m_tangentSpaceTransformationMats;
     std::vector<GLuint> m_indices;
     GLuint m_vao;
 
@@ -66,7 +65,7 @@ private:
 	void commonInitShape(const glm::vec3 position, const float scale_factor);
 
 	void calculateNormals();	
-	void calculateTangentSpace();
+	void calculateTangentVectors();
 
 	template<typename iter>
 	auto calculateTBMatrix(iter faceStart)
@@ -92,10 +91,8 @@ private:
 		auto t1 = v1 - v0;
 		auto t2 = v2 - v0;
         auto inv = 1.0f / (s1*t2 - s2*t1);
-        //printf("inv:%f\n",inv);
         return std::make_pair(glm::vec3(t2*Q1.x-t1*Q2.x,t2*Q1.y-t1*Q2.y,t2*Q1.z-t1*Q2.z)*inv,
                               glm::vec3(s1*Q2.x-s2*Q1.x,s1*Q2.y-s2*Q1.y,s1*Q2.z-s2*Q1.z)*inv);
-        //return inv*(glm::mat2x3(Q1.x, Q2.x, Q1.y, Q2.y, Q1.z, Q2.z)*glm::mat2(t2, -s2, -t1, s1));
 	}
 
 };

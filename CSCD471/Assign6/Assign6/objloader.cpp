@@ -118,6 +118,7 @@ vector<GLuint> objLoader::getIndices()const
 	auto pos2 = m_data.find("\n", pos);
 	GLuint x, y, z;
 	array<string, 3> temp;
+	const int base = 10;
 	while (pos != string::npos && pos2 != string::npos)
 	{
 		stringstream tmp(m_data.substr(pos + indStrLen, pos2 - pos - indStrLen));
@@ -126,11 +127,11 @@ vector<GLuint> objLoader::getIndices()const
 		tmp >> temp[2];
 		char * end;
 		const char* str = temp[0].c_str();
-		x = strtol(str, &end,10);
+		x = strtol(str, &end,base);
 		str = temp[1].c_str();
-		y = strtol(str, &end,10);
+		y = strtol(str, &end,base);
 		str = temp[2].c_str();
-		z = strtol(str, &end,10);
+		z = strtol(str, &end,base);
 		x--;
 		y--;
 		z--;

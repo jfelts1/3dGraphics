@@ -1,6 +1,6 @@
 #pragma once
 //uncomment to disable debug print statements and asserts
-#define NDEBUG
+//#define NDEBUG
 #include <string>
 #include <cstdlib>
 #include <cassert>

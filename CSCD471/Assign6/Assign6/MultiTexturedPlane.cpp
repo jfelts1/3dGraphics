@@ -74,7 +74,7 @@ unsigned int loadTexture(string filename) {
 	success = ilLoadImage(filename.c_str());
 
 	if (!success) {
-		cout << "Couldn't load the following texture file: " << filename.c_str() << endl;
+		cout << "Couldn't load the following texture file: " << filename << endl;
 		// The operation was not sucessfull hence free image and texture 
 		ilDeleteImages(1, &imageID);
 		return 0;

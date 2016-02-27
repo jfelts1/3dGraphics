@@ -52,14 +52,6 @@ Shape::Shape(const vector<vec3>& vertices,
 
 void Shape::render() const
 {
-    /*for(size_t i =0;i<m_indices.size();i+=3)
-    {
-        /*printf("I1:%i I2:%i I3:%i v1[%.2f,%.2f,%.2f] v2[%.2f,%.2f,%.2f] v3[%.2f,%.2f,%.2f]\n",m_indices[i],m_indices[i+1],m_indices[i+2],
-		m_vertices[m_indices[i]][0], m_vertices[m_indices[i]][1], m_vertices[m_indices[i]][2],
-		m_vertices[m_indices[i+1]][0], m_vertices[m_indices[i+1]][1], m_vertices[m_indices[i+1]][2],
-		m_vertices[m_indices[i + 2]][0], m_vertices[m_indices[i + 2]][1], m_vertices[m_indices[i + 2]][2]);*/
-		/*printf("I1:%3i I2:%3i I3:%3i\n", m_indices[i], m_indices[i + 1], m_indices[i + 2]);
-    }*/
     glBindVertexArray(m_vao);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indices.size()), GL_UNSIGNED_INT, nullptr);
 }
@@ -119,7 +111,7 @@ void Shape::commonInitShape(const vec3 position, const float scale_factor)
     unitize();
     scaleShape(scale_factor);
     shiftShape(position);
-    calculateTangentSpace();
+    calculateTangentVectors();
 	initShapeRender();
 }
 
@@ -143,7 +135,7 @@ void Shape::calculateNormals()
 	}
 }
 
-void Shape::calculateTangentSpace()
+void Shape::calculateTangentVectors()
 {
 	dprintf("m_texture.size():%llu,m_vertices.size():%llu,m_normals.size():%llu\n", m_textures.size(), m_vertices.size(), m_normals.size());
 	assert(m_textures.size() == m_vertices.size());
@@ -153,11 +145,8 @@ void Shape::calculateTangentSpace()
 	for (auto beg = m_indices.begin(), end = m_indices.end();beg != end;advance(beg, NumPointsPerTriangle))
 	{
 		auto TB = calculateTBMatrix(beg);
-        //vec4 T(TB[0].x, TB[0].y, TB[0].z,0.0f);
-        //vec4 B(TB[1].x, TB[1].y, TB[1].z,0.0f);
         vec4 T(TB.first,0.0f);
         vec4 B(TB.second,0.0f);
-        //dprintf("T{%f,%f,%f,%f}\n",T[0],T[1],T[2],T[3]);
 		m_tangentVectorsT[beg[0]] += T;
 		m_tangentVectorsT[beg[1]] += T;
 		m_tangentVectorsT[beg[2]] += T;
@@ -177,12 +166,6 @@ void Shape::calculateTangentSpace()
 
         m_tangentVectorsT[i] = normalize(vec4(vec3(T)-NTDot*vec3(N),0.0f));
         m_tangentVectorsT[i].w = (NTCrossBDot<0.0f)?-1.0f:1.0f;
-    }
-
-    for(auto& vec:m_tangentVectorsT)
-    {
-        //if(isnan(vec[0])|| isnan(vec[1])||isnan(vec[2])||isnan(vec[3]))
-        dprintf("m_tangentVectorT:{%f,%f,%f,%f}\n",vec[0],vec[1],vec[2],vec[3]);
     }
 }
 
