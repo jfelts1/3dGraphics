@@ -8,6 +8,7 @@ using std::sin;
 using std::cos;
 using std::max_element;
 using glm::vec2;
+#define TWO 2.0f
 
 #define CUBE_VERTICES vector<vec3>{\
 	vec3(1.0f, 1.0f, 1.0f),  /* v0,v1,v2,v3 (front)*/\
@@ -73,30 +74,30 @@ using glm::vec2;
 }
 
 #define CUBE_TEXTURES vector<vec2> {\
-	vec2(0.0, 0.0),      /*front*/\
-	vec2(2.0, 0.0),      \
-    vec2(2.0f, 2.0f),    \
-	vec2(0.0, 2.0),      \
-	vec2(0.0, 0.0),      /*right*/\
-	vec2(2.0, 0.0),      \
-    vec2(2.0f, 2.0f),    \
-	vec2(0.0, 2.0),      \
-	vec2(0.0, 0.0),      /*top*/\
-	vec2(2.0, 0.0),      \
-    vec2(2.0f, 2.0f),    \
-	vec2(0.0, 2.0),      \
-	vec2(0.0, 0.0),      /*left*/\
-	vec2(2.0, 0.0),      \
-    vec2(2.0f, 2.0f),    \
-	vec2(0.0, 2.0),      \
-	vec2(0.0, 0.0),      /*bottom*/\
-	vec2(2.0, 0.0),      \
-    vec2(2.0f, 2.0f),    \
-	vec2(0.0, 2.0),      \
-	vec2(0.0, 0.0),      /*back*/\
-	vec2(2.0, 0.0),      \
-    vec2(2.0f, 2.0f),    \
-	vec2(0.0, 2.0),      \
+	vec2(0.0, 0.0)/TWO,      /*front*/\
+	vec2(2.0, 0.0)/TWO,      \
+    vec2(2.0f, 2.0f)/TWO,    \
+	vec2(0.0, 2.0)/TWO,      \
+	vec2(0.0, 0.0)/TWO,      /*right*/\
+	vec2(2.0, 0.0)/TWO,      \
+    vec2(2.0f, 2.0f)/TWO,    \
+	vec2(0.0, 2.0)/TWO,      \
+	vec2(0.0, 0.0)/TWO,      /*top*/\
+	vec2(2.0, 0.0)/TWO,      \
+    vec2(2.0f, 2.0f)/TWO,    \
+	vec2(0.0, 2.0)/TWO,      \
+	vec2(0.0, 0.0)/TWO,      /*left*/\
+	vec2(2.0, 0.0)/TWO,      \
+    vec2(2.0f, 2.0f)/TWO,    \
+	vec2(0.0, 2.0)/TWO,      \
+	vec2(0.0, 0.0)/TWO,      /*bottom*/\
+	vec2(2.0, 0.0)/TWO,      \
+    vec2(2.0f, 2.0f)/TWO,    \
+	vec2(0.0, 2.0)/TWO,      \
+	vec2(0.0, 0.0)/TWO,      /*back*/\
+	vec2(2.0, 0.0)/TWO,      \
+    vec2(2.0f, 2.0f)/TWO,    \
+	vec2(0.0, 2.0)/TWO,      \
 }
 
 Shape Shapes::makeCube(const vec3 position, const float scale)

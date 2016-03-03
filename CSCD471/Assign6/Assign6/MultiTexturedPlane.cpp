@@ -41,22 +41,21 @@ static bool gIsTranslatingCamera = false;
 static int gLastMouseX, gLastMouseY;
 mat4 gCameraRotation;
 GLuint program;
+GLuint fboProg;
 float aspect = 0.0;
 GLfloat g_angle = 0.0;
 
 GLuint texIDOne;
-GLuint texIDTwo;
-GLuint cubeNormalID;
-GLuint fboGeneratedTextureIDCube;
-GLuint fboGeneratedTextureIDScreen;
-GLuint fboProg;
-GLuint rbo, screenRBO;
+GLuint bunnyNormalMapID;
+GLuint cubeNormalMapID;
+GLuint cubeFBOGeneratedTextureID;
+GLuint screenFBOGeneratedTextureID;
 FrameBufferHandler cubeFrameBufferHandler;
 FrameBufferHandler screenFrameBufferHandler;
+
 Shape bun;
 Shape cube;
-static const double kPI = 3.1415926535897932384626433832795;
-GLint  time_loc;
+
 GLuint screenVAO, screenVBO;
 vector<GLfloat> screenVertices{
 	-1.0f, 1.0f, 0.0f, 1.0f,
@@ -159,24 +158,15 @@ void Initialize(void){
 	
 	texIDOne = loadTexture("test3.dds");
 	glUniform1i(glGetUniformLocation(program, "Tex1"), 0);
-	texIDTwo = loadTexture("NormalMap.bmp");
+	bunnyNormalMapID = loadTexture("NormalMap.bmp");
 	glUniform1i(glGetUniformLocation(program, "NormalMap"), 1);
-	cubeNormalID = loadTexture("CubeNormal.png");
+	cubeNormalMapID = loadTexture("CubeNormal.png");
 
 	cubeFrameBufferHandler.genFBO();
 	cubeFrameBufferHandler.bindFBO();
-	fboGeneratedTextureIDCube = cubeFrameBufferHandler.geneateTexture();
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboGeneratedTextureIDCube, 0);
-
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
-	{
-		puts("ERROR: Framebuffer not complete");
-	}
+	cubeFBOGeneratedTextureID = cubeFrameBufferHandler.generateTexture();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cubeFBOGeneratedTextureID, 0);
+	cubeFrameBufferHandler.genRBO();
 	cubeFrameBufferHandler.unbindFBO();
 
 	//screen VAO
@@ -193,18 +183,10 @@ void Initialize(void){
 	//screen fbo
 	screenFrameBufferHandler.genFBO();
 	screenFrameBufferHandler.bindFBO();
-	fboGeneratedTextureIDScreen = screenFrameBufferHandler.geneateTexture();
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboGeneratedTextureIDScreen, 0);
-	//screen rbo
-	glGenRenderbuffers(1, &screenRBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, screenRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, screenRBO);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		puts("ERROR: Framebuffer not complete");
-	}
+	screenFBOGeneratedTextureID = screenFrameBufferHandler.generateTexture();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenFBOGeneratedTextureID, 0);
+
+	screenFrameBufferHandler.genRBO();
 	screenFrameBufferHandler.unbindFBO();
 	glEnable(GL_DEPTH_TEST);
 
@@ -213,6 +195,7 @@ void Initialize(void){
 /****************************************************************************/
 void Display(void)
 {
+	//render bunny to cube fbo
 	cubeFrameBufferHandler.bindFBO();
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glClearColor(.1f, .1f, .1f, 1.0f);
@@ -231,28 +214,30 @@ void Display(void)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texIDOne);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texIDTwo);
+	glBindTexture(GL_TEXTURE_2D, bunnyNormalMapID);
 	bun.render();
 	cubeFrameBufferHandler.unbindFBO();
+
 	//render cube to screen fbo
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fboGeneratedTextureIDCube);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, cubeNormalID);
 	screenFrameBufferHandler.bindFBO();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, cubeFBOGeneratedTextureID);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, cubeNormalMapID);
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	cube.render();
 	screenFrameBufferHandler.unbindFBO();
 
+	//render screen fbo to screen
 	glViewport(0, 0, gViewportWidth, gViewportHeight);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(fboProg);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fboGeneratedTextureIDScreen);	
+	glBindTexture(GL_TEXTURE_2D, screenFBOGeneratedTextureID);	
 	glBindVertexArray(screenVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);

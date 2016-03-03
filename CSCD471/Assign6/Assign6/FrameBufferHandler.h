@@ -7,10 +7,12 @@ public:
 	~FrameBufferHandler()=default;
 
 	void genFBO();
-	void bindFBO();
-	void unbindFBO();
-	GLuint geneateTexture() const;
+	void bindFBO() const;
+	void unbindFBO() const;
+	GLuint generateTexture() const;
+	void genRBO();
 private:
 	GLuint m_fbo = 0;
+	GLuint m_rbo = 0;
 };
 
