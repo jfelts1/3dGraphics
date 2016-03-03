@@ -27,6 +27,15 @@
     <ClInclude Include="shape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Shapes\Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalDefines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MultiTexturedPlane.cpp">
@@ -41,12 +50,24 @@
     <ClCompile Include="shape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shapes\Shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="texture.frag">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="texture.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="framebuffer.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="framebuffer.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -10,7 +10,6 @@
 
 #define GLM_FORCE_RADIANS 
 #define GLM_FORCE_CXX11
-#define TWOPI 2*3.1415926535897932384626433832795
 
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
@@ -18,6 +17,9 @@
 #include "shader.h"
 #include "shape.h"
 #include "objloader.h"
+#include "Shapes/Shapes.h"
+#include "FrameBufferHandler.h"
+#include "GlobalDefines.h"
 
 using namespace glm;
 using namespace std;
@@ -44,10 +46,27 @@ GLfloat g_angle = 0.0;
 
 GLuint texIDOne;
 GLuint texIDTwo;
+GLuint cubeNormalID;
+GLuint fboGeneratedTextureIDCube;
+GLuint fboGeneratedTextureIDScreen;
+GLuint fboProg;
+GLuint rbo, screenRBO;
+FrameBufferHandler cubeFrameBufferHandler;
+FrameBufferHandler screenFrameBufferHandler;
 Shape bun;
+Shape cube;
 static const double kPI = 3.1415926535897932384626433832795;
 GLint  time_loc;
+GLuint screenVAO, screenVBO;
+vector<GLfloat> screenVertices{
+	-1.0f, 1.0f, 0.0f, 1.0f,
+	-1.0f, -1.0f, 0.0f, 0.0f,
+	1.0f, -1.0f, 1.0f, 0.0f,
 
+	-1.0f, 1.0f, 0.0f, 1.0f,
+	1.0f, -1.0f, 1.0f, 0.0f,
+	1.0f, 1.0f, 1.0f, 1.0f
+};
 
 void Initialize();
 void Display(void);
@@ -109,17 +128,20 @@ void Initialize(void){
 	// Create the program for rendering the model
 	
 	// Use our shader
-	string bunny = "bunny2.obj";
-	objLoader loader(bunny);
+	string bunnyFile = "bunny2.obj";
+	objLoader loader(bunnyFile);
 	//loader.print_data();
     bun = Shape(loader.getVertices(), loader.getTextures(), loader.getIndices());
+	cube = Shapes::makeCube();
 
 	view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 	program = LoadShaders("texture.vert", "texture.frag");
+	fboProg = LoadShaders("framebuffer.vert", "framebuffer.frag");
 
 	glUseProgram(program);
-
+	
+	
 	vec3 light_intensity(1.0f, 1.0f, 1.0f);
 	vec4 light_position(10.0f, 10.0f, 10.0f, 1.0f);
 	vec3 material_ambient(0.5, 0.5, 0.5);
@@ -139,20 +161,64 @@ void Initialize(void){
 	glUniform1i(glGetUniformLocation(program, "Tex1"), 0);
 	texIDTwo = loadTexture("NormalMap.bmp");
 	glUniform1i(glGetUniformLocation(program, "NormalMap"), 1);
-    //time_loc = glGetUniformLocation(program, "time");
+	cubeNormalID = loadTexture("CubeNormal.png");
+
+	cubeFrameBufferHandler.genFBO();
+	cubeFrameBufferHandler.bindFBO();
+	fboGeneratedTextureIDCube = cubeFrameBufferHandler.geneateTexture();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboGeneratedTextureIDCube, 0);
+
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE)
+	{
+		puts("ERROR: Framebuffer not complete");
+	}
+	cubeFrameBufferHandler.unbindFBO();
+
+	//screen VAO
+	glGenVertexArrays(1, &screenVAO);
+	glGenBuffers(1, &screenVBO);
+	glBindVertexArray(screenVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
+	glBufferData(GL_ARRAY_BUFFER, screenVertices.size()*sizeof(decltype(screenVertices[0])), screenVertices.data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(2 * sizeof(GLfloat)));
+	glBindVertexArray(0);
+	//screen fbo
+	screenFrameBufferHandler.genFBO();
+	screenFrameBufferHandler.bindFBO();
+	fboGeneratedTextureIDScreen = screenFrameBufferHandler.geneateTexture();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboGeneratedTextureIDScreen, 0);
+	//screen rbo
+	glGenRenderbuffers(1, &screenRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, screenRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, screenRBO);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		puts("ERROR: Framebuffer not complete");
+	}
+	screenFrameBufferHandler.unbindFBO();
+	glEnable(GL_DEPTH_TEST);
+
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 /****************************************************************************/
 void Display(void)
 {
-	// Clear
-	//float t = float(GetTickCount() & 0x3FFF) / float(0x3FFF);
-
+	cubeFrameBufferHandler.bindFBO();
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glClearColor(.1f, .1f, .1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
 
 	glUseProgram(program);
-	//glUniform1f(time_loc, t);
 
 	transformation_matrix = mat4(1.0f);
 	mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
@@ -167,7 +233,28 @@ void Display(void)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texIDTwo);
 	bun.render();
+	cubeFrameBufferHandler.unbindFBO();
+	//render cube to screen fbo
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, fboGeneratedTextureIDCube);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, cubeNormalID);
+	screenFrameBufferHandler.bindFBO();
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	cube.render();
+	screenFrameBufferHandler.unbindFBO();
 
+	glViewport(0, 0, gViewportWidth, gViewportHeight);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUseProgram(fboProg);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, fboGeneratedTextureIDScreen);	
+	glBindVertexArray(screenVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 
 	glutSwapBuffers();
@@ -378,7 +465,7 @@ int main(int argc, char** argv)
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA);
-	glutInitWindowSize(512, 512);
+	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	glutCreateWindow("FBO Bunny");
 
