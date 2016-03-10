@@ -19,6 +19,7 @@
 #include "objloader.h"
 #include "FrameBufferHandler.h"
 #include "GlobalDefines.h"
+#include "Screen.h"
 
 using namespace glm;
 using namespace std;
@@ -30,7 +31,6 @@ mat4 model_view;
 mat4 transformation_matrix;
 mat4 mvp;
 mat3 normalmatrix;
-static int gViewportWidth, gViewportHeight;
 static double gCameraScale = 1.0;
 static double gCameraTranslationX = 0;
 static double gCameraTranslationY = 0;
@@ -46,21 +46,9 @@ GLfloat g_angle = 0.0;
 
 GLuint texIDOne;
 GLuint bunnyNormalMapID;
-GLuint screenFBOGeneratedTextureID;
-FrameBufferHandler screenFrameBufferHandler;
 
 Shape bun;
-
-GLuint screenVAO, screenVBO;
-vector<GLfloat> screenVertices{
-	-1.0f, 1.0f, 0.0f, 1.0f,
-	-1.0f, -1.0f, 0.0f, 0.0f,
-	1.0f, -1.0f, 1.0f, 0.0f,
-
-	-1.0f, 1.0f, 0.0f, 1.0f,
-	1.0f, -1.0f, 1.0f, 0.0f,
-	1.0f, 1.0f, 1.0f, 1.0f
-};
+Screen screen;
 
 void Initialize();
 void Display(void);
@@ -130,10 +118,10 @@ void Initialize(void){
 	view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
 	program = LoadShaders("texture.vert", "texture.frag");
+	//program = LoadShaders("texture.vert", "texture.frag","texture.geo");
 	fboProg = LoadShaders("framebuffer.vert", "framebuffer.frag");
 
 	glUseProgram(program);
-	
 	
 	vec3 light_intensity(1.0f, 1.0f, 1.0f);
 	vec4 light_position(10.0f, 10.0f, 10.0f, 1.0f);
@@ -155,26 +143,8 @@ void Initialize(void){
 	bunnyNormalMapID = loadTexture("NormalMap.bmp");
 	glUniform1i(glGetUniformLocation(program, "NormalMap"), 1);
 
-
-	//screen VAO
-	glGenVertexArrays(1, &screenVAO);
-	glGenBuffers(1, &screenVBO);
-	glBindVertexArray(screenVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
-	glBufferData(GL_ARRAY_BUFFER, screenVertices.size()*sizeof(decltype(screenVertices[0])), screenVertices.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), static_cast<GLvoid*>(nullptr));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(2 * sizeof(GLfloat)));
-	glBindVertexArray(0);
-	//screen fbo
-	screenFrameBufferHandler.genFBO();
-	screenFrameBufferHandler.bindFBO();
-	screenFBOGeneratedTextureID = screenFrameBufferHandler.generateTexture();
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenFBOGeneratedTextureID, 0);
-
-	screenFrameBufferHandler.genRBO();
-	screenFrameBufferHandler.unbindFBO();
+	screen.initScreen();
+	
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -182,8 +152,8 @@ void Initialize(void){
 /****************************************************************************/
 void Display(void)
 {
-	//render bunny to cube fbo
-    screenFrameBufferHandler.bindFBO();
+	//render scene to screen fbo
+    screen.bindFBO();
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -203,19 +173,9 @@ void Display(void)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, bunnyNormalMapID);
 	bun.render();
-    screenFrameBufferHandler.unbindFBO();
+    screen.unbindFBO();
 
-	//render screen fbo to screen
-	glViewport(0, 0, gViewportWidth, gViewportHeight);
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glUseProgram(fboProg);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, screenFBOGeneratedTextureID);	
-	glBindVertexArray(screenVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
+	screen.render();
 
 	glutSwapBuffers();
 }
@@ -240,8 +200,8 @@ void setMatrices(){
 
 void Reshape(int width, int height)
 {
-	gViewportWidth = width;
-	gViewportHeight = height;
+	screen.setViewportWidth(width);
+	screen.setViewportHeight(height);
 	glViewport(0, 0, width, height);
 
 	//projection = glm::perspective(50.0f, (float)width / height, 0.3f, 1000.0f);
@@ -355,12 +315,12 @@ void glutMotion(int x, int y)
 		vec3 lastPos;
 		vec3 currPos;
 
-		lastPos.x = gLastMouseX * 2.0f / gViewportWidth - 1.0f;
-		lastPos.y = (gViewportHeight - gLastMouseY) * 2.0f / gViewportHeight - 1.0f;
+		lastPos.x = gLastMouseX * 2.0f / screen.getViewportWidth()- 1.0f;
+		lastPos.y = (screen.getViewportHeight() - gLastMouseY) * 2.0f / screen.getViewportHeight() - 1.0f;
 		lastPos.z = static_cast<float>(projectToTrackball(kTrackBallRadius, lastPos[0], lastPos[1]));
 
-		currPos.x = x * 2.0f / gViewportWidth - 1.0f;
-		currPos.y = (gViewportHeight - y) * 2.0f / gViewportHeight - 1.0f;
+		currPos.x = x * 2.0f / screen.getViewportWidth() - 1.0f;
+		currPos.y = (screen.getViewportHeight() - y) * 2.0f / screen.getViewportHeight() - 1.0f;
 		currPos.z = static_cast<float>(projectToTrackball(kTrackBallRadius, currPos[0], currPos[1]));
 
 		currPos = normalize(currPos);
@@ -399,16 +359,16 @@ void glutMotion(int x, int y)
 	}
 	if (gIsTranslatingCamera)
 	{
-		gCameraTranslationX += 2 * double(x - gLastMouseX) / gViewportWidth;
-		gCameraTranslationY -= 2 * double(y - gLastMouseY) / gViewportHeight;
+		gCameraTranslationX += 2 * double(x - gLastMouseX) / screen.getViewportWidth();
+		gCameraTranslationY -= 2 * double(y - gLastMouseY) / screen.getViewportHeight();
 
 	}
 	else if (gIsScalingCamera)
 	{
-		float y1 = static_cast<float>(gViewportHeight - gLastMouseY);
-		float y2 = static_cast<float>(gViewportHeight - y);
+		float y1 = static_cast<float>(screen.getViewportHeight() - gLastMouseY);
+		float y2 = static_cast<float>(screen.getViewportHeight() - y);
 
-		gCameraScale *= 1 + (y1 - y2) / gViewportHeight;
+		gCameraScale *= 1 + (y1 - y2) / screen.getViewportHeight();
 	}
 
 	glutPostRedisplay();
@@ -427,7 +387,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_RGBA);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	glutCreateWindow("FBO Bunny");
+	glutCreateWindow("Geometry Bunny");
 
 	if (glewInit()){
         cerr << "Unable to initialize GLEW ... exiting" << endl;

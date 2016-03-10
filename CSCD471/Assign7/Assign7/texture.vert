@@ -11,6 +11,10 @@ struct LightInfo {
 };
 uniform LightInfo Light;
 
+out VS_OUT {
+    vec3 color;
+} vs_out;
+
 out vec3 Position;
 out vec3 Normal;
 out vec2 TexCoord;
@@ -40,4 +44,6 @@ void main()
     viewDir = normalize(-Position.xyz)*tangentSpace;
     lightDir = normalize(vec3(Light.Position) - Position)*tangentSpace;
     gl_Position = MVP * vec4(VertexPosition,1.0);
+
+	vs_out.color = vec3(1.0,0.0,1.0);
 }
