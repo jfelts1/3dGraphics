@@ -117,8 +117,8 @@ void Initialize(void){
 
 	view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
-	program = LoadShaders("texture.vert", "texture.frag");
-	//program = LoadShaders("texture.vert", "texture.frag","texture.geo");
+    //program = LoadShaders("texture.vert", "texture.frag");
+    program = LoadShaders("texture.vert", "texture.frag","texture.geom");
 	fboProg = LoadShaders("framebuffer.vert", "framebuffer.frag");
 
 	glUseProgram(program);

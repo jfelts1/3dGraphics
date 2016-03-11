@@ -74,11 +74,17 @@ void Shape::scaleShape(const float scale_factor)
 
 void Shape::initShapeRender()
 {
+    GLfloat points[] = {
+        -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, // Top-left
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, // Top-right
+        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom-right
+        -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // Bottom-left
+    };
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 
-	unsigned int handle[5];
-	glGenBuffers(5, handle);
+    unsigned int handle[6];
+    glGenBuffers(6, handle);
 
 	glBindBuffer(GL_ARRAY_BUFFER, handle[0]);
 	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(decltype(m_vertices[0])), m_vertices.data(), GL_STATIC_DRAW);
@@ -103,6 +109,11 @@ void Shape::initShapeRender()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle[4]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(decltype(m_indices[0])), m_indices.data(), GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ARRAY_BUFFER, handle[5]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
 	glBindVertexArray(0);
 }
 
