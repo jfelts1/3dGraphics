@@ -46,6 +46,6 @@ void main()
     vs_out.viewDir = normalize(-Position.xyz)*tangentSpace;
     vs_out.lightDir = normalize(vec3(Light.Position) - Position)*tangentSpace;
     gl_Position = MVP * vec4(VertexPosition,1.0);
-
-        vs_out.color = vec3(1.0,1.0,0.0);
+	//hair color is yellow
+    vs_out.color = vec3(1.0,1.0,0.0);
 }

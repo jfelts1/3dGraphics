@@ -15,7 +15,7 @@ out vec3 viewDir;
 out vec3 lightDir;
 
 out vec3 fColor;
-
+uniform mat4 ProjectionMatrix;
 void main() 
 {  
     for(int i =0;i<3;i++)
@@ -27,8 +27,8 @@ void main()
 
         gl_Position = gl_in[i].gl_Position;
         EmitVertex();
-        vec4 offset = vec4(Normal[i],0.0);
-        offset/=4.0f;//reduce the commically long hairs of the bunny to make them look more reasonable
+        vec4 offset = ProjectionMatrix*vec4(Normal[i],0.0);
+        offset/=10.0f;//reduce the comically long hairs of the bunny to make them look more reasonable
         gl_Position = gl_in[i].gl_Position + offset;
         EmitVertex();
         EndPrimitive();
