@@ -8,4 +8,4 @@ uniform sampler2D screenTexture;
 void main()
 { 
     color = texture(screenTexture, TexCoords);
-    }
+}

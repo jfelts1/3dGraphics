@@ -41,7 +41,7 @@ static int gLastMouseX, gLastMouseY;
 mat4 gCameraRotation;
 GLuint hairProg;
 GLuint fboProg;
-GLuint program;
+GLuint standardProg;
 float aspect = 0.0;
 GLfloat g_angle = 0.0;
 
@@ -62,8 +62,8 @@ unsigned int loadTexture(string filename);
 void setMatrices(GLuint prog);
 
 /************************************/
-unsigned int loadTexture(string filename) {
-
+unsigned int loadTexture(string filename) 
+{
 	ILboolean success;
 	unsigned int imageID;
 
@@ -131,10 +131,8 @@ void initProgData(GLuint prog)
     glUniform1i(glGetUniformLocation(prog, "NormalMap"), 1);
 }
 
-void Initialize(void){
-	// Create the program for rendering the model
-	
-	// Use our shader
+void Initialize(void)
+{
 	string bunnyFile = "bunny2.obj";
 	objLoader loader(bunnyFile);
 	//loader.print_data();
@@ -142,17 +140,17 @@ void Initialize(void){
 
 	view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
-    program = LoadShaders("texture.vert", "texture.frag");
+    standardProg = LoadShaders("texture.vert", "texture.frag");
     hairProg = LoadShaders("hair.vert", "hair.frag","hair.geom");
 	fboProg = LoadShaders("framebuffer.vert", "framebuffer.frag");
 
     initProgData(hairProg);
-    initProgData(program);
+    initProgData(standardProg);
 
 	screen.initScreen();
 	
 	glEnable(GL_DEPTH_TEST);
-
+	glDepthFunc(GL_LEQUAL);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 /****************************************************************************/
@@ -183,16 +181,17 @@ void Display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderUsingProg(hairProg);
-    renderUsingProg(program);
+    renderUsingProg(standardProg);
     screen.unbindFBO();
-
+	//display screen fbo to user
 	screen.render();
 
 	glutSwapBuffers();
 }
 
 /******************************************************************************/
-void setMatrices(GLuint prog){
+void setMatrices(GLuint prog)
+{
 	model *= transformation_matrix;
     normalmatrix = mat3(1.0f);
     mvp = mat4(1.0f);
@@ -240,7 +239,6 @@ void keyboard(unsigned char key, int x, int y)
 	case 'R':
 		makeIdentity();
 		break;
-
 	}
 	glutPostRedisplay();
 }
@@ -300,7 +298,6 @@ void glutMouse(int button, int state, int x, int y)
 		}
 		else if (button == GLUT_RIGHT_BUTTON)
 		{
-
 			gIsScalingCamera = true;
 		}
 
@@ -363,7 +360,8 @@ void glutMotion(int x, int y)
 
 		mat4 tempMatrix;
 
-		if (abs(angle) > DBL_EPSILON*20.0){
+		if (abs(angle) > DBL_EPSILON*20.0)
+		{
 			tempMatrix = gCameraRotation*deltaRotation;
 			gCameraRotation = tempMatrix;
 		}
@@ -372,7 +370,6 @@ void glutMotion(int x, int y)
 	{
 		gCameraTranslationX += 2 * double(x - gLastMouseX) / screen.getViewportWidth();
 		gCameraTranslationY -= 2 * double(y - gLastMouseY) / screen.getViewportHeight();
-
 	}
 	else if (gIsScalingCamera)
 	{
@@ -398,9 +395,10 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_RGBA);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	glutCreateWindow("Geometry Bunny");
+	glutCreateWindow("Hairy Bunny");
 
-	if (glewInit()){
+	if (glewInit())
+	{
         cerr << "Unable to initialize GLEW ... exiting" << endl;
 	}
 

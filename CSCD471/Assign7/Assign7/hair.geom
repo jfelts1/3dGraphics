@@ -1,6 +1,6 @@
 #version 330 
 layout (triangles) in;
-layout (line_strip, max_vertices = 2) out;
+layout (line_strip, max_vertices = 6) out;
 
 in VS_OUT {
     vec3 color;
@@ -14,8 +14,8 @@ out vec2 TexCoord;
 out vec3 viewDir;
 out vec3 lightDir;
 
-
 out vec3 fColor;
+
 void main() 
 {  
     for(int i =0;i<3;i++)
@@ -28,7 +28,7 @@ void main()
         gl_Position = gl_in[i].gl_Position;
         EmitVertex();
         vec4 offset = vec4(Normal[i],0.0);
-        offset/=3.0f;//reduce the commically long hairs of the bunny to make them look more reasonable
+        offset/=4.0f;//reduce the commically long hairs of the bunny to make them look more reasonable
         gl_Position = gl_in[i].gl_Position + offset;
         EmitVertex();
         EndPrimitive();

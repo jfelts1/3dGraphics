@@ -139,7 +139,9 @@
   <ItemGroup>
     <None Include="framebuffer.frag" />
     <None Include="framebuffer.vert" />
-    <None Include="texture.geo" />
+    <None Include="hair.frag" />
+    <None Include="hair.geom" />
+    <None Include="hair.vert" />
     <None Include="texture.frag" />
     <None Include="texture.vert" />
   </ItemGroup>

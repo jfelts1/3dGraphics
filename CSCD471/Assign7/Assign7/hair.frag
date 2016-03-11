@@ -46,5 +46,6 @@ void main() {
     vec4 normal = texture(NormalMap,TexCoord);
     normal = vec4(normalize(vec3(2.0*normal-1.0)),1.0f);
     phongModel(texColor.rgb, normal.xyz, ambAndDiff, spec );
-    FragColor = (vec4( ambAndDiff, 1.0 ) * texColor) + vec4(spec,1.0);
+    FragColor = (vec4( ambAndDiff, 1.0 ) * vec4(fColor,0.0)) + vec4(spec,1.0);
+	//FragColor = (vec4( ambAndDiff, 1.0 ) * texColor) + vec4(spec,1.0);
 }

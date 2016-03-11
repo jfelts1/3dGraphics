@@ -29,7 +29,7 @@ objLoader::objLoader(const string& filepath)
 	}
 	else
 	{
-		puts("Failed to open input file");
+		fputs("Failed to open input file",stderr);
 	}
 }
 

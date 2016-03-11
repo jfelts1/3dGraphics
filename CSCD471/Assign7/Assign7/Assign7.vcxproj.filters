@@ -70,7 +70,13 @@
     <None Include="texture.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="texture.geo">
+    <None Include="hair.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="hair.geom">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="hair.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

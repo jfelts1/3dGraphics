@@ -47,5 +47,5 @@ void main()
     vs_out.lightDir = normalize(vec3(Light.Position) - Position)*tangentSpace;
     gl_Position = MVP * vec4(VertexPosition,1.0);
 
-        vs_out.color = color;
+        vs_out.color = vec3(1.0,1.0,0.0);
 }
