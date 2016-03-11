@@ -11,6 +11,7 @@ in vec3 Normal;
 in vec2 TexCoord;
 in vec3 viewDir;
 in vec3 lightDir;
+in vec3 fColor;
 
 uniform sampler2D Tex1;
 uniform sampler2D NormalMap;

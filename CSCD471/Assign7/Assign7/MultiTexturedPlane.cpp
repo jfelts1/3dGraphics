@@ -39,8 +39,9 @@ static bool gIsScalingCamera = false;
 static bool gIsTranslatingCamera = false;
 static int gLastMouseX, gLastMouseY;
 mat4 gCameraRotation;
-GLuint program;
+GLuint hairProg;
 GLuint fboProg;
+GLuint program;
 float aspect = 0.0;
 GLfloat g_angle = 0.0;
 
@@ -106,6 +107,30 @@ unsigned int loadTexture(string filename) {
 }
 
 /************************************/
+void initProgData(GLuint prog)
+{
+    glUseProgram(prog);
+    vec3 light_intensity(1.0f, 1.0f, 1.0f);
+    vec4 light_position(10.0f, 10.0f, 10.0f, 1.0f);
+    vec3 material_ambient(0.5, 0.5, 0.5);
+    vec3 material_diffuse(0.9, 0.9, 0.9);
+    vec3 material_specular(0.9, 0.9, 0.9);
+
+    GLfloat shininess = 100.0f;
+
+    glUniform3fv(glGetUniformLocation(prog, "Light.Intensity"), 1, reinterpret_cast<GLfloat*>(&light_intensity));
+    glUniform4fv(glGetUniformLocation(prog, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&light_position));
+    glUniform3fv(glGetUniformLocation(prog, "Material.Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
+    glUniform3fv(glGetUniformLocation(prog, "Material.Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
+    glUniform3fv(glGetUniformLocation(prog, "Material.Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
+    glUniform1f(glGetUniformLocation(prog, "Material.Shininess"), shininess);
+
+    texIDOne = loadTexture("test3.dds");
+    glUniform1i(glGetUniformLocation(prog, "Tex1"), 0);
+    bunnyNormalMapID = loadTexture("NormalMap.bmp");
+    glUniform1i(glGetUniformLocation(prog, "NormalMap"), 1);
+}
+
 void Initialize(void){
 	// Create the program for rendering the model
 	
@@ -117,31 +142,13 @@ void Initialize(void){
 
 	view = lookAt(vec3(0.0f, 0.0f, 3.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	projection = mat4(1.0f);
-    //program = LoadShaders("texture.vert", "texture.frag");
-    program = LoadShaders("texture.vert", "texture.frag","texture.geom");
+    program = LoadShaders("texture.vert", "texture.frag");
+    hairProg = LoadShaders("hair.vert", "hair.frag","hair.geom");
 	fboProg = LoadShaders("framebuffer.vert", "framebuffer.frag");
 
-	glUseProgram(program);
-	
-	vec3 light_intensity(1.0f, 1.0f, 1.0f);
-	vec4 light_position(10.0f, 10.0f, 10.0f, 1.0f);
-	vec3 material_ambient(0.5, 0.5, 0.5);
-	vec3 material_diffuse(0.9, 0.9, 0.9);
-	vec3 material_specular(0.9, 0.9, 0.9);
 
-    GLfloat shininess = 100.0f;
-
-    glUniform3fv(glGetUniformLocation(program, "Light.Intensity"), 1, reinterpret_cast<GLfloat*>(&light_intensity));
-    glUniform4fv(glGetUniformLocation(program, "Light.Position"), 1, reinterpret_cast<GLfloat*>(&light_position));
-	glUniform3fv(glGetUniformLocation(program, "Material.Ka"), 1, reinterpret_cast<GLfloat*>(&material_ambient));
-	glUniform3fv(glGetUniformLocation(program, "Material.Kd"), 1, static_cast<GLfloat*>(&material_diffuse[0]));
-	glUniform3fv(glGetUniformLocation(program, "Material.Ks"), 1, static_cast<GLfloat*>(&material_specular[0]));
-	glUniform1f(glGetUniformLocation(program, "Material.Shininess"), shininess);
-	
-	texIDOne = loadTexture("test3.dds");
-	glUniform1i(glGetUniformLocation(program, "Tex1"), 0);
-	bunnyNormalMapID = loadTexture("NormalMap.bmp");
-	glUniform1i(glGetUniformLocation(program, "NormalMap"), 1);
+    initProgData(hairProg);
+    initProgData(program);
 
 	screen.initScreen();
 	
@@ -150,6 +157,24 @@ void Initialize(void){
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 /****************************************************************************/
+void renderUsingProg(GLuint prog)
+{
+    glUseProgram(prog);
+    transformation_matrix = mat4(1.0f);
+    mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
+    mat4 translated = translate(mat4(1.0f), vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
+    transformation_matrix = translated*gCameraRotation*scaled;
+
+    model = mat4(1.0f);
+
+    setMatrices();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texIDOne);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, bunnyNormalMapID);
+    bun.render();
+}
+
 void Display(void)
 {
 	//render scene to screen fbo
@@ -158,21 +183,9 @@ void Display(void)
     glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(program);
 
-	transformation_matrix = mat4(1.0f);
-	mat4 scaled = scale(mat4(1.0f), vec3(gCameraScale, gCameraScale, gCameraScale));
-	mat4 translated = translate(mat4(1.0f), vec3(gCameraTranslationX, gCameraTranslationY, 0.0));
-	transformation_matrix = translated*gCameraRotation*scaled;
-	
-	model = mat4(1.0f);
-	
-	setMatrices();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texIDOne);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, bunnyNormalMapID);
-	bun.render();
+    renderUsingProg(hairProg);
+    renderUsingProg(program);
     screen.unbindFBO();
 
 	screen.render();
@@ -190,10 +203,10 @@ void setMatrices(){
 	projection = perspective(70.0f, aspect, 0.3f, 100.0f);
 	mvp = projection*model_view;
 
-	glUniformMatrix4fv(glGetUniformLocation(program, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
-	glUniformMatrix3fv(glGetUniformLocation(program, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
-	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
-	glUniformMatrix4fv(glGetUniformLocation(program, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
+    glUniformMatrix4fv(glGetUniformLocation(hairProg, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
+    glUniformMatrix3fv(glGetUniformLocation(hairProg, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
+    glUniformMatrix4fv(glGetUniformLocation(hairProg, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
+    glUniformMatrix4fv(glGetUniformLocation(hairProg, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 }
 
 /********************************************************************************/
