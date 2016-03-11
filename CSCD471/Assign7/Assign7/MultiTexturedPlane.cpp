@@ -59,7 +59,7 @@ void glutMouse(int button, int state, int x, int y);
 void glutMotion(int x, int y);
 double projectToTrackball(double radius, double x, double y);
 unsigned int loadTexture(string filename);
-void setMatrices();
+void setMatrices(GLuint prog);
 
 /************************************/
 unsigned int loadTexture(string filename) {
@@ -146,7 +146,6 @@ void Initialize(void){
     hairProg = LoadShaders("hair.vert", "hair.frag","hair.geom");
 	fboProg = LoadShaders("framebuffer.vert", "framebuffer.frag");
 
-
     initProgData(hairProg);
     initProgData(program);
 
@@ -167,7 +166,7 @@ void renderUsingProg(GLuint prog)
 
     model = mat4(1.0f);
 
-    setMatrices();
+    setMatrices(prog);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texIDOne);
     glActiveTexture(GL_TEXTURE1);
@@ -183,7 +182,6 @@ void Display(void)
     glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
     renderUsingProg(hairProg);
     renderUsingProg(program);
     screen.unbindFBO();
@@ -194,7 +192,7 @@ void Display(void)
 }
 
 /******************************************************************************/
-void setMatrices(){
+void setMatrices(GLuint prog){
 	model *= transformation_matrix;
     normalmatrix = mat3(1.0f);
     mvp = mat4(1.0f);
@@ -203,10 +201,10 @@ void setMatrices(){
 	projection = perspective(70.0f, aspect, 0.3f, 100.0f);
 	mvp = projection*model_view;
 
-    glUniformMatrix4fv(glGetUniformLocation(hairProg, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
-    glUniformMatrix3fv(glGetUniformLocation(hairProg, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
-    glUniformMatrix4fv(glGetUniformLocation(hairProg, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
-    glUniformMatrix4fv(glGetUniformLocation(hairProg, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
+    glUniformMatrix4fv(glGetUniformLocation(prog, "ModelViewMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&model_view[0]));
+    glUniformMatrix3fv(glGetUniformLocation(prog, "NormalMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&normalmatrix[0]));
+    glUniformMatrix4fv(glGetUniformLocation(prog, "MVP"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&mvp[0]));
+    glUniformMatrix4fv(glGetUniformLocation(prog, "ProjectionMatrix"), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&projection[0]));
 }
 
 /********************************************************************************/
